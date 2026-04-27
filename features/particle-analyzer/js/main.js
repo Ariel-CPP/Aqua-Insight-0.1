@@ -25,7 +25,7 @@ const App = {
     /**
      * Initialize the application
      */
-    init() {
+    init: function() {
         console.log('🚀 Initializing Aqua Insight - Particle Analyzer');
         
         this.bindEvents();
@@ -40,98 +40,141 @@ const App = {
     /**
      * Bind all event listeners
      */
-    bindEvents() {
+    bindEvents: function() {
+        var self = this;
+        
         // File input
-        const imageInput = document.getElementById('imageInput');
+        var imageInput = document.getElementById('imageInput');
         if (imageInput) {
-            imageInput.addEventListener('change', (e) => this.handleFileSelect(e));
+            imageInput.addEventListener('change', function(e) {
+                self.handleFileSelect(e);
+            });
         }
 
         // Upload area click
-        const uploadArea = document.getElementById('fileUploadArea');
+        var uploadArea = document.getElementById('fileUploadArea');
         if (uploadArea) {
-            uploadArea.addEventListener('click', () => imageInput?.click());
+            uploadArea.addEventListener('click', function() {
+                if (imageInput) imageInput.click();
+            });
         }
 
         // RGB channel buttons
-        document.querySelectorAll('.rgb-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.selectChannel(e));
-        });
+        var rgbButtons = document.querySelectorAll('.rgb-btn');
+        for (var i = 0; i < rgbButtons.length; i++) {
+            rgbButtons[i].addEventListener('click', function(e) {
+                self.selectChannel(e);
+            });
+        }
 
         // Dark background checkbox
-        document.getElementById('darkBackground')?.addEventListener('change', (e) => {
-            this.settings.darkBackground = e.target.checked;
-        });
+        var darkBg = document.getElementById('darkBackground');
+        if (darkBg) {
+            darkBg.addEventListener('change', function(e) {
+                self.settings.darkBackground = e.target.checked;
+            });
+        }
 
         // Analyze button
-        const analyzeBtn = document.getElementById('analyzeBtn');
+        var analyzeBtn = document.getElementById('analyzeBtn');
         if (analyzeBtn) {
-            analyzeBtn.addEventListener('click', () => this.runAnalysis());
+            analyzeBtn.addEventListener('click', function() {
+                self.runAnalysis();
+            });
         }
 
         // Export buttons
-        document.getElementById('exportCSV')?.addEventListener('click', () => this.exportCSV());
-        document.getElementById('exportPNG')?.addEventListener('click', () => this.exportPNG());
+        var exportCSV = document.getElementById('exportCSV');
+        if (exportCSV) {
+            exportCSV.addEventListener('click', function() {
+                self.exportCSV();
+            });
+        }
+
+        var exportPNG = document.getElementById('exportPNG');
+        if (exportPNG) {
+            exportPNG.addEventListener('click', function() {
+                self.exportPNG();
+            });
+        }
 
         // Back to dashboard
-        document.getElementById('backToDashboard')?.addEventListener('click', () => {
-            window.location.href = '../../index.html';
-        });
+        var backBtn = document.getElementById('backToDashboard');
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                window.location.href = '../../index.html';
+            });
+        }
 
         // File list remove buttons (event delegation)
-        document.getElementById('fileList')?.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                const filename = e.target.dataset.filename;
-                if (filename) this.removeImage(filename);
-            }
-        });
+        var fileList = document.getElementById('fileList');
+        if (fileList) {
+            fileList.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON') {
+                    var filename = e.target.getAttribute('data-filename');
+                    if (filename) self.removeImage(filename);
+                }
+            });
+        }
 
         // Window resize
-        window.addEventListener('resize', Utils.debounce(() => {
-            if (this.currentImageData) {
-                ZoomPan.fitToView();
-            }
-        }, 200));
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (self.currentImageData) {
+                    ZoomPan.fitToView();
+                }
+            }, 200);
+        });
     },
 
     /**
      * Bind zoom controls
      */
-    bindZoomControls() {
-        document.getElementById('zoomIn')?.addEventListener('click', () => ZoomPan.zoomIn());
-        document.getElementById('zoomOut')?.addEventListener('click', () => ZoomPan.zoomOut());
-        document.getElementById('zoomFit')?.addEventListener('click', () => ZoomPan.fitToView());
-        document.getElementById('zoomReset')?.addEventListener('click', () => ZoomPan.resetZoom());
+    bindZoomControls: function() {
+        var zoomIn = document.getElementById('zoomIn');
+        var zoomOut = document.getElementById('zoomOut');
+        var zoomFit = document.getElementById('zoomFit');
+        var zoomReset = document.getElementById('zoomReset');
+
+        if (zoomIn) zoomIn.addEventListener('click', function() { ZoomPan.zoomIn(); });
+        if (zoomOut) zoomOut.addEventListener('click', function() { ZoomPan.zoomOut(); });
+        if (zoomFit) zoomFit.addEventListener('click', function() { ZoomPan.fitToView(); });
+        if (zoomReset) zoomReset.addEventListener('click', function() { ZoomPan.resetZoom(); });
     },
 
     /**
      * Bind drag and drop
      */
-    bindDragDrop() {
-        const uploadArea = document.getElementById('fileUploadArea');
+    bindDragDrop: function() {
+        var self = this;
+        var uploadArea = document.getElementById('fileUploadArea');
         if (!uploadArea) return;
 
-        uploadArea.addEventListener('dragover', (e) => {
+        uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
             uploadArea.classList.add('dragover');
         });
 
-        uploadArea.addEventListener('dragleave', () => {
+        uploadArea.addEventListener('dragleave', function() {
             uploadArea.classList.remove('dragover');
         });
 
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             
-            const files = e.dataTransfer.files;
+            var files = e.dataTransfer.files;
             if (files.length > 0) {
-                const input = document.getElementById('imageInput');
+                var input = document.getElementById('imageInput');
                 if (input) {
-                    const dt = new DataTransfer();
-                    Array.from(files).forEach(f => dt.items.add(f));
+                    var dt = new DataTransfer();
+                    for (var i = 0; i < files.length; i++) {
+                        dt.items.add(files[i]);
+                    }
                     input.files = dt.files;
-                    this.handleFileSelect({ target: input });
+                    self.handleFileSelect({ target: input });
                 }
             }
         });
@@ -140,15 +183,12 @@ const App = {
     /**
      * Initialize canvas
      */
-    initCanvas() {
-        const canvas = document.getElementById('imageCanvas');
+    initCanvas: function() {
+        var canvas = document.getElementById('imageCanvas');
         if (canvas) {
-            // Set canvas size
-            const container = canvas.parentElement;
+            var container = canvas.parentElement;
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
-            
-            // Initialize zoom/pan
             ZoomPan.init(canvas);
         }
     },
@@ -156,110 +196,108 @@ const App = {
     /**
      * Bind all sliders
      */
-    bindSliders() {
-        // Threshold
-        const thresholdSlider = document.getElementById('thresholdSlider');
+    bindSliders: function() {
+        var thresholdSlider = document.getElementById('thresholdSlider');
         if (thresholdSlider) {
-            thresholdSlider.addEventListener('input', (e) => {
-                this.settings.threshold = parseInt(e.target.value);
-                document.getElementById('thresholdValue').textContent = e.target.value;
-            });
+            thresholdSlider.addEventListener('input', function(e) {
+                this.settings.threshold = parseInt(e.target.value, 10);
+                var val = document.getElementById('thresholdValue');
+                if (val) val.textContent = e.target.value;
+            }.bind(this));
         }
 
-        // Size Min
-        const sizeMinSlider = document.getElementById('sizeMinSlider');
+        var sizeMinSlider = document.getElementById('sizeMinSlider');
         if (sizeMinSlider) {
-            sizeMinSlider.addEventListener('input', (e) => {
-                this.settings.sizeMin = parseInt(e.target.value);
-                document.getElementById('sizeMinValue').textContent = e.target.value;
-            });
+            sizeMinSlider.addEventListener('input', function(e) {
+                this.settings.sizeMin = parseInt(e.target.value, 10);
+                var val = document.getElementById('sizeMinValue');
+                if (val) val.textContent = e.target.value;
+            }.bind(this));
         }
 
-        // Size Max
-        const sizeMaxSlider = document.getElementById('sizeMaxSlider');
+        var sizeMaxSlider = document.getElementById('sizeMaxSlider');
         if (sizeMaxSlider) {
-            sizeMaxSlider.addEventListener('input', (e) => {
-                this.settings.sizeMax = parseInt(e.target.value);
-                document.getElementById('sizeMaxValue').textContent = e.target.value;
-            });
+            sizeMaxSlider.addEventListener('input', function(e) {
+                this.settings.sizeMax = parseInt(e.target.value, 10);
+                var val = document.getElementById('sizeMaxValue');
+                if (val) val.textContent = e.target.value;
+            }.bind(this));
         }
 
-        // Circularity Min
-        const circMinSlider = document.getElementById('circularityMinSlider');
+        var circMinSlider = document.getElementById('circularityMinSlider');
         if (circMinSlider) {
-            circMinSlider.addEventListener('input', (e) => {
-                const value = parseInt(e.target.value) / 100;
+            circMinSlider.addEventListener('input', function(e) {
+                var value = parseInt(e.target.value, 10) / 100;
                 this.settings.circularityMin = value;
-                document.getElementById('circularityMinValue').textContent = value.toFixed(2);
-            });
+                var val = document.getElementById('circularityMinValue');
+                if (val) val.textContent = value.toFixed(2);
+            }.bind(this));
         }
     },
 
     /**
      * Handle file selection
      */
-    handleFileSelect(e) {
-        const files = Array.from(e.target.files);
+    handleFileSelect: function(e) {
+        var self = this;
+        var files = Array.from(e.target.files);
         if (files.length === 0) return;
 
         UI.showLoading('Loading images...');
 
         this.images = [];
-        const fileList = document.getElementById('fileList');
-        fileList.innerHTML = '';
+        var fileList = document.getElementById('fileList');
+        if (fileList) fileList.innerHTML = '';
 
-        // Load all images
-        let loadedCount = 0;
-        const loadPromises = files.map(file => this.loadImage(file));
+        var loadPromises = [];
+        for (var i = 0; i < files.length; i++) {
+            loadPromises.push(this.loadImage(files[i]));
+        }
 
-        Promise.all(loadPromises)
-            .then(results => {
-                results.forEach((imageData, idx) => {
-                    if (imageData) {
-                        this.images.push({
-                            file: files[idx],
-                            imageData: imageData,
-                            name: files[idx].name
-                        });
-
-                        // Add to file list UI
-                        this.addFileItem(files[idx].name);
-                        loadedCount++;
-                    }
-                });
-
-                UI.hideLoading();
-
-                if (this.images.length > 0) {
-                    this.currentImageIndex = 0;
-                    this.loadCurrentImage();
-                    UI.showSuccess(`Loaded ${loadedCount} image(s)`);
-                } else {
-                    UI.showError('No valid images loaded');
+        Promise.all(loadPromises).then(function(results) {
+            var loadedCount = 0;
+            for (var j = 0; j < results.length; j++) {
+                if (results[j]) {
+                    self.images.push({
+                        file: files[j],
+                        imageData: results[j],
+                        name: files[j].name
+                    });
+                    self.addFileItem(files[j].name);
+                    loadedCount++;
                 }
-            })
-            .catch(err => {
-                UI.hideLoading();
-                UI.showError('Failed to load images: ' + err.message);
-                console.error('Load error:', err);
-            });
+            }
+
+            UI.hideLoading();
+
+            if (self.images.length > 0) {
+                self.currentImageIndex = 0;
+                self.loadCurrentImage();
+                UI.showSuccess('Loaded ' + loadedCount + ' image(s)');
+            } else {
+                UI.showError('No valid images loaded');
+            }
+        }).catch(function(err) {
+            UI.hideLoading();
+            UI.showError('Failed to load images: ' + err.message);
+            console.error('Load error:', err);
+        });
     },
 
     /**
      * Load single image file
      */
-    loadImage(file) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            const reader = new FileReader();
+    loadImage: function(file) {
+        return new Promise(function(resolve, reject) {
+            var img = new Image();
+            var reader = new FileReader();
 
-            reader.onload = (e) => {
-                img.onload = () => {
-                    // Create canvas to extract image data
-                    const canvas = document.createElement('canvas');
+            reader.onload = function(e) {
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
+                    var ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
 
                     resolve({
@@ -270,11 +308,15 @@ const App = {
                     });
                 };
 
-                img.onerror = () => reject(new Error('Failed to decode image'));
+                img.onerror = function() {
+                    reject(new Error('Failed to decode image'));
+                };
                 img.src = e.target.result;
             };
 
-            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.onerror = function() {
+                reject(new Error('Failed to read file'));
+            };
             reader.readAsDataURL(file);
         });
     },
@@ -282,24 +324,23 @@ const App = {
     /**
      * Add file item to list
      */
-    addFileItem(filename) {
-        const fileList = document.getElementById('fileList');
-        const fileItem = document.createElement('div');
+    addFileItem: function(filename) {
+        var fileList = document.getElementById('fileList');
+        if (!fileList) return;
+        
+        var fileItem = document.createElement('div');
         fileItem.className = 'file-item';
-        fileItem.innerHTML = `
-            <span>📷 ${filename}</span>
-            <button data-filename="${filename}">✕</button>
-        `;
+        fileItem.innerHTML = '<span>📷 ' + filename + '</span><button data-filename="' + filename + '">✕</button>';
         fileList.appendChild(fileItem);
     },
 
-    /**
+       /**
      * Load current image
      */
-    loadCurrentImage() {
+    loadCurrentImage: function() {
         if (this.images.length === 0) return;
 
-        const current = this.images[this.currentImageIndex];
+        var current = this.images[this.currentImageIndex];
         if (!current) return;
 
         this.currentImageData = current.imageData;
@@ -312,9 +353,9 @@ const App = {
         );
 
         // Show control sections
-        UI.toggleSection('rgbStackSection', true);
-        UI.toggleSection('analysisSettings', true);
-        UI.setButtonState('analyzeBtn', true, '🔬 Analyze Particles');
+        this.toggleSection('rgbStackSection', true);
+        this.toggleSection('analysisSettings', true);
+        this.setButtonState('analyzeBtn', true, '🔬 Analyze Particles');
 
         // Render channel previews
         renderChannelPreviews(this.currentImageData.imageData, this.selectedChannel);
@@ -323,41 +364,51 @@ const App = {
         this.analyzeChannelContrast();
 
         // Hide previous results
-        UI.toggleSection('summarySection', false);
-        UI.toggleSection('resultsPanel', false);
-        UI.toggleSection('exportSection', false);
+        this.toggleSection('summarySection', false);
+        this.toggleSection('resultsPanel', false);
+        this.toggleSection('exportSection', false);
         ZoomPan.particles = [];
     },
 
     /**
      * Analyze channel contrast
      */
-    analyzeChannelContrast() {
+    analyzeChannelContrast: function() {
         if (!this.currentImageData) return;
 
-        const rgbChannels = Detection.extractRGBChannels(this.currentImageData.imageData);
-        const contrast = Detection.calculateContrastRatio(rgbChannels);
+        var rgbChannels = Detection.extractRGBChannels(this.currentImageData.imageData);
+        var contrast = Detection.calculateContrastRatio(rgbChannels);
 
         // Auto-select best channel
         this.selectedChannel = contrast.bestChannel;
 
         // Update button states
-        document.querySelectorAll('.rgb-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.channel === this.selectedChannel);
-        });
+        var rgbButtons = document.querySelectorAll('.rgb-btn');
+        for (var i = 0; i < rgbButtons.length; i++) {
+            if (rgbButtons[i].getAttribute('data-channel') === this.selectedChannel) {
+                rgbButtons[i].classList.add('active');
+            } else {
+                rgbButtons[i].classList.remove('active');
+            }
+        }
     },
 
     /**
      * Select RGB channel
      */
-    selectChannel(e) {
-        const channel = e.target.dataset.channel;
+    selectChannel: function(e) {
+        var channel = e.target.getAttribute('data-channel');
         this.selectedChannel = channel;
 
         // Update button states
-        document.querySelectorAll('.rgb-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.channel === channel);
-        });
+        var rgbButtons = document.querySelectorAll('.rgb-btn');
+        for (var i = 0; i < rgbButtons.length; i++) {
+            if (rgbButtons[i].getAttribute('data-channel') === channel) {
+                rgbButtons[i].classList.add('active');
+            } else {
+                rgbButtons[i].classList.remove('active');
+            }
+        }
 
         if (this.currentImageData) {
             renderChannelPreviews(this.currentImageData.imageData, channel);
@@ -367,14 +418,21 @@ const App = {
     /**
      * Remove image from list
      */
-    removeImage(filename) {
-        const idx = this.images.findIndex(img => img.name === filename);
+    removeImage: function(filename) {
+        var idx = -1;
+        for (var i = 0; i < this.images.length; i++) {
+            if (this.images[i].name === filename) {
+                idx = i;
+                break;
+            }
+        }
+
         if (idx > -1) {
             this.images.splice(idx, 1);
 
             // Remove from file list UI
-            const fileList = document.getElementById('fileList');
-            const items = fileList.querySelectorAll('.file-item');
+            var fileList = document.getElementById('fileList');
+            var items = fileList.querySelectorAll('.file-item');
             if (items[idx]) items[idx].remove();
 
             // Update current index
@@ -393,35 +451,36 @@ const App = {
     /**
      * Clear canvas
      */
-    clearCanvas() {
+    clearCanvas: function() {
         ZoomPan.particles = [];
         ZoomPan.drawEmptyCanvas();
         
         this.currentImageData = null;
         
-        UI.toggleSection('rgbStackSection', false);
-        UI.toggleSection('analysisSettings', false);
-        UI.toggleSection('summarySection', false);
-        UI.toggleSection('resultsPanel', false);
-        UI.toggleSection('exportSection', false);
-        UI.toggleSection('channelPreviewSection', false);
+        this.toggleSection('rgbStackSection', false);
+        this.toggleSection('analysisSettings', false);
+        this.toggleSection('summarySection', false);
+        this.toggleSection('resultsPanel', false);
+        this.toggleSection('exportSection', false);
+        this.toggleSection('channelPreviewSection', false);
         
-        UI.setButtonState('analyzeBtn', false);
+        this.setButtonState('analyzeBtn', false);
     },
 
     /**
      * Run particle analysis
      */
-    runAnalysis() {
+    runAnalysis: function() {
         if (!this.currentImageData || this.isAnalyzing) return;
 
+        var self = this;
         this.isAnalyzing = true;
-        UI.setButtonState('analyzeBtn', false, '⏳ Analyzing...');
+        this.setButtonState('analyzeBtn', false, '⏳ Analyzing...');
         UI.showLoading('Analyzing particles...');
 
         try {
             // Run analysis
-            const results = ParticleAnalysis.analyzeParticles(
+            var results = ParticleAnalysis.analyzeParticles(
                 this.currentImageData.imageData,
                 {
                     channel: this.selectedChannel,
@@ -447,10 +506,10 @@ const App = {
             this.showResultsTable(results);
 
             // Show export section
-            UI.toggleSection('exportSection', true);
+            this.toggleSection('exportSection', true);
 
             UI.hideLoading();
-            UI.showSuccess(`Found ${results.totalParticles} particles!`);
+            UI.showSuccess('Found ' + results.totalParticles + ' particles!');
 
         } catch (error) {
             console.error('Analysis error:', error);
@@ -459,49 +518,53 @@ const App = {
         }
 
         this.isAnalyzing = false;
-        UI.setButtonState('analyzeBtn', true, '🔬 Analyze Particles');
+        this.setButtonState('analyzeBtn', true, '🔬 Analyze Particles');
     },
 
     /**
      * Update summary section
      */
-    updateSummary(results) {
-        UI.toggleSection('summarySection', true);
+    updateSummary: function(results) {
+        this.toggleSection('summarySection', true);
 
-        const coverage = ((results.totalArea / (results.imageWidth * results.imageHeight)) * 100).toFixed(2);
+        var coverage = ((results.totalArea / (results.imageWidth * results.imageHeight)) * 100).toFixed(2);
 
-        document.getElementById('totalParticles').textContent = Utils.formatNumber(results.totalParticles);
-        document.getElementById('totalArea').textContent = Utils.formatNumber(results.totalArea) + ' px²';
-        document.getElementById('coveragePercent').textContent = coverage + '%';
+        var totalParticles = document.getElementById('totalParticles');
+        var totalArea = document.getElementById('totalArea');
+        var coveragePercent = document.getElementById('coveragePercent');
+
+        if (totalParticles) totalParticles.textContent = Utils.formatNumber(results.totalParticles);
+        if (totalArea) totalArea.textContent = Utils.formatNumber(results.totalArea) + ' px²';
+        if (coveragePercent) coveragePercent.textContent = coverage + '%';
     },
 
     /**
      * Show results table
      */
-    showResultsTable(results) {
-        UI.toggleSection('resultsPanel', true);
+    showResultsTable: function(results) {
+        this.toggleSection('resultsPanel', true);
 
-        const tbody = document.querySelector('#resultsTable tbody');
+        var tbody = document.querySelector('#resultsTable tbody');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
-        results.particles.forEach(particle => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>#${particle.number}</strong></td>
-                <td>${particle.size}</td>
-                <td>${particle.meanR.toFixed(1)}</td>
-                <td>${particle.meanG.toFixed(1)}</td>
-                <td>${particle.meanB.toFixed(1)}</td>
-                <td>${particle.circularity.toFixed(3)}</td>
-            `;
+        for (var i = 0; i < results.particles.length; i++) {
+            var particle = results.particles[i];
+            var row = document.createElement('tr');
+            row.innerHTML = '<td><strong>#' + particle.number + '</strong></td>' +
+                '<td>' + particle.size + '</td>' +
+                '<td>' + particle.meanR.toFixed(1) + '</td>' +
+                '<td>' + particle.meanG.toFixed(1) + '</td>' +
+                '<td>' + particle.meanB.toFixed(1) + '</td>' +
+                '<td>' + particle.circularity.toFixed(3) + '</td>';
             tbody.appendChild(row);
-        });
+        }
     },
 
     /**
      * Export to CSV
      */
-    exportCSV() {
+    exportCSV: function() {
         if (!this.analysisResults) {
             UI.showError('No analysis results to export');
             return;
@@ -514,13 +577,13 @@ const App = {
     /**
      * Export to PNG
      */
-    exportPNG() {
+    exportPNG: function() {
         if (!this.analysisResults) {
             UI.showError('No analysis results to export');
             return;
         }
 
-        const canvas = document.getElementById('imageCanvas');
+        var canvas = document.getElementById('imageCanvas');
         Export.exportToPNG(
             canvas,
             this.analysisResults.particles,
@@ -528,56 +591,78 @@ const App = {
             this.analysisResults.imageHeight
         );
         UI.showSuccess('PNG exported successfully!');
+    },
+
+    /**
+     * Toggle section visibility
+     */
+    toggleSection: function(id, show) {
+        var section = document.getElementById(id);
+        if (section) {
+            section.style.display = show ? 'block' : 'none';
+        }
+    },
+
+    /**
+     * Set button state
+     */
+    setButtonState: function(id, enabled, text) {
+        var btn = document.getElementById(id);
+        if (btn) {
+            btn.disabled = !enabled;
+            if (text) btn.textContent = text;
+        }
     }
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     App.init();
 });
 
 /**
  * Render channel previews (module-level function)
  */
-function renderChannelPreviews(imageData, selectedChannel = 'gray') {
-    const width = imageData.width;
-    const height = imageData.height;
+function renderChannelPreviews(imageData, selectedChannel) {
+    var width = imageData.width;
+    var height = imageData.height;
 
-    // Get canvas contexts
-    const fullRgbCanvas = document.getElementById('fullRgbCanvas');
-    const grayscaleCanvas = document.getElementById('grayscaleCanvas');
-    const redCanvas = document.getElementById('redCanvas');
-    const greenCanvas = document.getElementById('greenCanvas');
-    const blueCanvas = document.getElementById('blueCanvas');
-    const edgeCanvas = document.getElementById('edgeCanvas');
+    // Get canvas elements
+    var fullRgbCanvas = document.getElementById('fullRgbCanvas');
+    var grayscaleCanvas = document.getElementById('grayscaleCanvas');
+    var redCanvas = document.getElementById('redCanvas');
+    var greenCanvas = document.getElementById('greenCanvas');
+    var blueCanvas = document.getElementById('blueCanvas');
+    var edgeCanvas = document.getElementById('edgeCanvas');
 
     if (!fullRgbCanvas) return;
 
     // Set canvas dimensions
-    [fullRgbCanvas, grayscaleCanvas, redCanvas, greenCanvas, blueCanvas, edgeCanvas].forEach(canvas => {
-        if (canvas) {
-            canvas.width = width;
-            canvas.height = height;
+    var canvases = [fullRgbCanvas, grayscaleCanvas, redCanvas, greenCanvas, blueCanvas, edgeCanvas];
+    for (var c = 0; c < canvases.length; c++) {
+        if (canvases[c]) {
+            canvases[c].width = width;
+            canvases[c].height = height;
         }
-    });
+    }
 
-        // Draw Full RGB
-    const ctxFullRgb = fullRgbCanvas.getContext('2d');
+    // Draw Full RGB
+    var ctxFullRgb = fullRgbCanvas.getContext('2d');
     ctxFullRgb.putImageData(imageData, 0, 0);
 
     // Create grayscale
-    const gray = Detection.toGrayscale(imageData);
-    const grayImageData = Detection.createGrayscaleImageData(gray, width, height);
+    var gray = Detection.toGrayscale(imageData);
+    var grayImageData = Detection.createGrayscaleImageData(gray, width, height);
     grayscaleCanvas.getContext('2d').putImageData(grayImageData, 0, 0);
 
     // Extract RGB channels
-    const data = imageData.data;
-    const redChannel = new Uint8ClampedArray(width * height * 4);
-    const greenChannel = new Uint8ClampedArray(width * height * 4);
-    const blueChannel = new Uint8ClampedArray(width * height * 4);
+    var data = imageData.data;
+    var redChannel = new Uint8ClampedArray(width * height * 4);
+    var greenChannel = new Uint8ClampedArray(width * height * 4);
+    var blueChannel = new Uint8ClampedArray(width * height * 4);
 
-    for (let i = 0; i < width * height; i++) {
-        const idx = i * 4;
+    for (var i = 0; i < width * height; i++) {
+        var idx = i * 4;
 
         // Red channel
         redChannel[idx] = data[idx];
@@ -603,31 +688,35 @@ function renderChannelPreviews(imageData, selectedChannel = 'gray') {
     blueCanvas.getContext('2d').putImageData(new ImageData(blueChannel, width, height), 0, 0);
 
     // Edge detection based on selected channel
-    let edgeSource;
+    var edgeSource;
+    
     if (selectedChannel === 'red') {
         edgeSource = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSource[i] = data[i * 4];
+        for (var j = 0; j < width * height; j++) {
+            edgeSource[j] = data[j * 4];
         }
     } else if (selectedChannel === 'green') {
         edgeSource = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSource[i] = data[i * 4 + 1];
+        for (var k = 0; k < width * height; k++) {
+            edgeSource[k] = data[k * 4 + 1];
         }
     } else if (selectedChannel === 'blue') {
         edgeSource = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSource[i] = data[i * 4 + 2];
+        for (var m = 0; m < width * height; m++) {
+            edgeSource[m] = data[m * 4 + 2];
         }
     } else {
         edgeSource = gray;
     }
 
     // Apply Sobel edge detection
-    const edge = Detection.sobelEdgeDetection(edgeSource, width, height);
-    const edgeImageData = Detection.createEdgeImageData(edge, width, height);
+    var edge = Detection.sobelEdgeDetection(edgeSource, width, height);
+    var edgeImageData = Detection.createEdgeImageData(edge, width, height);
     edgeCanvas.getContext('2d').putImageData(edgeImageData, 0, 0);
 
     // Show channel preview section
-    UI.toggleSection('channelPreviewSection', true);
+    var previewSection = document.getElementById('channelPreviewSection');
+    if (previewSection) {
+        previewSection.style.display = 'block';
+    }
 }
