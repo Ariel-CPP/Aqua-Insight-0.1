@@ -270,14 +270,18 @@ const App = {
      * Select RGB channel
      */
     selectChannel(e) {
-        const channel = e.target.dataset.channel;
-        this.selectedChannel = channel;
+    const channel = e.target.dataset.channel;
+    this.selectedChannel = channel;
 
-        // Update button states
-        document.querySelectorAll('.rgb-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.channel === channel);
-        });
-    },
+    // Update button states
+    document.querySelectorAll('.rgb-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.channel === channel);
+    });
+
+    if (this.currentImageData) {
+        renderChannelPreviews(this.currentImageData.imageData, channel);
+    }
+}
 
     /**
      * Remove image from list
@@ -475,3 +479,119 @@ ZoomPan.drawParticleOverlayOnContext = function(ctx, particles) {
         ctx.fillText(number.toString(), x, y - Math.sqrt(particle.size / Math.PI) - 15);
     });
 };
+function renderChannelPreviews(imageData, selectedChannel = 'gray') {
+    const width = imageData.width;
+    const height = imageData.height;
+    const ctxFullRgb = document.getElementById('fullRgbCanvas').getContext('2d');
+    const ctxGray = document.getElementById('grayscaleCanvas').getContext('2d');
+    const ctxRed = document.getElementById('redCanvas').getContext('2d');
+    const ctxGreen = document.getElementById('greenCanvas').getContext('2d');
+    const ctxBlue = document.getElementById('blueCanvas').getContext('2d');
+    const ctxEdge = document.getElementById('edgeCanvas').getContext('2d');
+
+    // Draw full RGB
+    ctxFullRgb.putImageData(imageData, 0, 0);
+
+    // Create grayscale data once for reuse
+    const gray = Detection.toGrayscale(imageData);
+    const grayImageData = Detection.createGrayscaleImageData(gray, width, height);
+    ctxGray.putImageData(grayImageData, 0, 0);
+
+    // Extract RGB channels
+    const redChannel = new Uint8ClampedArray(width * height * 4);
+    const greenChannel = new Uint8ClampedArray(width * height * 4);
+    const blueChannel = new Uint8ClampedArray(width * height * 4);
+    const data = imageData.data;
+
+    for (let i = 0; i < width * height; i++) {
+        redChannel[i * 4] = data[i * 4];
+        redChannel[i * 4 + 1] = 0;
+        redChannel[i * 4 + 2] = 0;
+        redChannel[i * 4 + 3] = 255;
+
+        greenChannel[i * 4] = 0;
+        greenChannel[i * 4 + 1] = data[i * 4 + 1];
+        greenChannel[i * 4 + 2] = 0;
+        greenChannel[i * 4 + 3] = 255;
+
+        blueChannel[i * 4] = 0;
+        blueChannel[i * 4 + 1] = 0;
+        blueChannel[i * 4 + 2] = data[i * 4 + 2];
+        blueChannel[i * 4 + 3] = 255;
+    }
+
+    ctxRed.putImageData(new ImageData(redChannel, width, height), 0, 0);
+    ctxGreen.putImageData(new ImageData(greenChannel, width, height), 0, 0);
+    ctxBlue.putImageData(new ImageData(blueChannel, width, height), 0, 0);
+
+    // Prepare data for edge detection based on selected channel
+    let edgeSourceGray;
+    if (selectedChannel === 'red') {
+        edgeSourceGray = new Uint8ClampedArray(width * height);
+        for (let i = 0; i < width * height; i++) {
+            edgeSourceGray[i] = data[i * 4];
+        }
+    } else if (selectedChannel === 'green') {
+        edgeSourceGray = new Uint8ClampedArray(width * height);
+        for (let i = 0; i < width * height; i++) {
+            edgeSourceGray[i] = data[i * 4 + 1];
+        }
+    } else if (selectedChannel === 'blue') {
+        edgeSourceGray = new Uint8ClampedArray(width * height);
+        for (let i = 0; i < width * height; i++) {
+            edgeSourceGray[i] = data[i * 4 + 2];
+        }
+    } else {
+        edgeSourceGray = gray;
+    }
+
+    const edge = Detection.sobelEdgeDetection(edgeSourceGray, width, height);
+    const edgeImageData = Detection.createEdgeImageData(edge, width, height);
+    ctxEdge.putImageData(edgeImageData, 0, 0);
+
+    document.getElementById('channelPreviewSection').style.display = 'block';
+}
+
+async handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    UI.showLoading('Loading images...');
+
+    this.images = [];
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+
+    for (const file of files) {
+        try {
+            const imageData = await this.loadImage(file);
+            this.images.push({
+                file,
+                imageData,
+                name: file.name
+            });
+
+            // Add to file list
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span>📷 ${file.name}</span>
+                <button onclick="App.removeImage('${file.name}')">✕</button>
+            `;
+            fileList.appendChild(fileItem);
+
+            // Render channel previews for first image only or all (choose):
+            if(this.images.length === 1) {
+                renderChannelPreviews(imageData.imageData);
+            }
+        } catch (err) {
+            UI.showError(`Failed to load: ${file.name}`);
+        }
+    }
+
+    UI.hideLoading();
+
+    if (this.images.length > 0) {
+        this.loadCurrentImage();
+    }
+},
