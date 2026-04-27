@@ -67,5 +67,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         lastScrollTop = scrollTop;
-    });
+    }
+    // Tambahkan di akhir file js/main.js sebelum penutup }
+
+    // Auto-redirect logic for under-development page
+    if (window.location.pathname.includes('under-development.html')) {
+        // Show notification after 5 seconds
+        setTimeout(() => {
+            const btnBack = document.querySelector('.btn-back');
+            if (btnBack) {
+                btnBack.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 3000);
+    }
 });
