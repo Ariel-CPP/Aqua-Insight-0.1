@@ -1,44 +1,25 @@
 /**
- * utils.js - Utility Helper Functions
- * Aqua Insight - Particle Analyzer
+ * utils.js - Utility Functions
+ * Aqua Insight v0.1 - Particle Analyzer
  */
 
-// Global utility functions
 const Utils = {
     /**
-     * Format number with commas
+     * Format number with thousand separator
      */
     formatNumber(num) {
-        return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
 
     /**
-     * Calculate circularity (4π × Area / Perimeter²)
+     * Clamp value between min and max
      */
-    calculateCircularity(area, perimeter) {
-        if (perimeter === 0) return 0;
-        return (4 * Math.PI * area) / (perimeter * perimeter);
+    clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
     },
 
     /**
-     * Get pixel data from ImageData object
-     */
-    getPixelIndex(x, y, width) {
-        return (y * width + x) * 4;
-    },
-
-    /**
-     * Convert canvas coordinates to image coordinates
-     */
-    canvasToImage(x, y, scale, offsetX, offsetY) {
-        return {
-            x: (x - offsetX) / scale,
-            y: (y - offsetY) / scale
-        };
-    },
-
-    /**
-     * Debounce function for performance
+     * Debounce function
      */
     debounce(func, wait) {
         let timeout;
@@ -60,47 +41,21 @@ const Utils = {
     },
 
     /**
-     * Create array of zeros
+     * Calculate distance between two points
      */
-    createEmptyArray(length) {
-        return new Array(length).fill(0);
+    distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     },
 
     /**
-     * Clamp value between min and max
+     * Format file size
      */
-    clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-    },
-
-    /**
-     * Get file extension
-     */
-    getFileExtension(filename) {
-        return filename.split('.').pop().toLowerCase();
-    },
-
-    /**
-     * Format bytes to human readable
-     */
-    formatBytes(bytes) {
+    formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-
-    /**
-     * Create canvas from image data
-     */
-    createCanvasFromImageData(imageData) {
-        const canvas = document.createElement('canvas');
-        canvas.width = imageData.width;
-        canvas.height = imageData.height;
-        const ctx = canvas.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
-        return canvas;
     },
 
     /**
@@ -111,94 +66,5 @@ const Utils = {
     }
 };
 
-// Export for use in other modules
+// Export
 window.Utils = Utils;
-
-/**
- * Perform binary dilation on a binary mask
- * @param {Uint8Array} mask Binary mask (0 or 255)
- * @param {number} width Image width
- * @param {number} height Image height
- * @param {number} radius Radius of dilation kernel (usually 1 or 2)
- * @returns {Uint8Array} Dilated mask
- */
-function binaryDilation(mask, width, height, radius = 1) {
-    const output = new Uint8Array(width * height);
-    const r = radius;
-
-    for(let y = 0; y < height; y++) {
-        for(let x = 0; x < width; x++) {
-            let val = 0;
-            for(let dy = -r; dy <= r; dy++) {
-                for(let dx = -r; dx <= r; dx++) {
-                    const nx = x + dx;
-                    const ny = y + dy;
-                    if(nx >= 0 && nx < width && ny >=0 && ny < height) {
-                        if(mask[ny * width + nx] === 255) {
-                            val = 255;
-                            break;
-                        }
-                    }
-                }
-                if(val === 255) break;
-            }
-            output[y * width + x] = val;
-        }
-    }
-    return output;
-}
-
-/**
- * Perform binary erosion on a binary mask
- * @param {Uint8Array} mask Binary mask (0 or 255)
- * @param {number} width Image width
- * @param {number} height Image height
- * @param {number} radius Radius of erosion kernel (usually 1 or 2)
- * @returns {Uint8Array} Eroded mask
- */
-function binaryErosion(mask, width, height, radius = 1) {
-    const output = new Uint8Array(width * height);
-    const r = radius;
-
-    for(let y = 0; y < height; y++) {
-        for(let x = 0; x < width; x++) {
-            let val = 255;
-            for(let dy = -r; dy <= r; dy++) {
-                for(let dx = -r; dx <= r; dx++) {
-                    const nx = x + dx;
-                    const ny = y + dy;
-                    if(nx >= 0 && nx < width && ny >=0 && ny < height) {
-                        if(mask[ny * width + nx] === 0) {
-                            val = 0;
-                            break;
-                        }
-                    } else {
-                        val = 0; // Outside bounds treated as background (0)
-                        break;
-                    }
-                }
-                if(val === 0) break;
-            }
-            output[y * width + x] = val;
-        }
-    }
-    return output;
-}
-
-/**
- * Perform morphological opening (erosion followed by dilation)
- */
-function morphologicalOpening(mask, width, height, radius = 1) {
-    const eroded = binaryErosion(mask, width, height, radius);
-    const opened = binaryDilation(eroded, width, height, radius);
-    return opened;
-}
-
-/**
- * Perform morphological closing (dilation followed by erosion)
- */
-function morphologicalClosing(mask, width, height, radius = 1) {
-    const dilated = binaryDilation(mask, width, height, radius);
-    const closed = binaryErosion(dilated, width, height, radius);
-    return closed;
-}
