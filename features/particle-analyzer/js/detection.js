@@ -200,3 +200,64 @@ const Detection = {
 
 // Export for use in other modules
 window.Detection = Detection;
+
+/**
+ * Apply adaptive/local thresholding using integral images and mean subtraction
+ * @param {ImageData} imageData Original RGBA image data
+ * @param {number} blockSize Size of neighborhood block (odd number, e.g., 15 or 21)
+ * @param {number} C Constant subtracted from mean to adjust threshold (e.g., 10)
+ * @returns {Uint8Array} Binary mask (0: background, 255: foreground)
+ */
+function applyAdaptiveThreshold(imageData, blockSize = 21, C = 10) {
+    const width = imageData.width;
+    const height = imageData.height;
+    const data = imageData.data;
+    const gray = new Uint8Array(width * height);
+
+    // Convert image to grayscale using standard formula
+    for(let i = 0; i < width * height; i++) {
+        const idx = i * 4;
+        gray[i] = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+    }
+
+    // Compute integral image for fast mean calculation
+    const integral = new Uint32Array((width + 1) * (height + 1));
+    for(let y = 1; y <= height; y++) {
+        let rowSum = 0;
+        for(let x = 1; x <= width; x++) {
+            rowSum += gray[(y - 1) * width + (x - 1)];
+            integral[y * (width + 1) + x] = integral[(y - 1) * (width + 1) + x] + rowSum;
+        }
+    }
+
+    // Prepare output binary mask
+    const mask = new Uint8Array(width * height);
+
+    const halfBlock = Math.floor(blockSize / 2);
+
+    for(let y = 0; y < height; y++) {
+        for(let x = 0; x < width; x++) {
+            // Define the bounding box of neighborhood block
+            const x1 = Math.max(x - halfBlock, 0);
+            const y1 = Math.max(y - halfBlock, 0);
+            const x2 = Math.min(x + halfBlock, width - 1);
+            const y2 = Math.min(y + halfBlock, height - 1);
+
+            const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+
+            const sum = integral[(y2 + 1) * (width + 1) + (x2 + 1)]
+                      - integral[(y1) * (width + 1) + (x2 + 1)]
+                      - integral[(y2 + 1) * (width + 1) + (x1)]
+                      + integral[(y1) * (width + 1) + (x1)];
+
+            const localMean = sum / count;
+            const thresh = localMean - C;
+
+            // Assign pixel white if > threshold, else black
+            const idx = y * width + x;
+            mask[idx] = gray[idx] > thresh ? 255 : 0;
+        }
+    }
+
+    return mask;
+}
