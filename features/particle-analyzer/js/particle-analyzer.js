@@ -237,6 +237,10 @@ function runAnalysis() {
     var width = state.width;
     var height = state.height;
     
+    console.log('Image dimensions:', width, 'x', height);
+    console.log('Total pixels:', width * height);
+    console.log('Data length:', data.length);
+    
     // Step 1: Create binary mask from selected channel
     var binaryMask = new Uint8Array(width * height);
     
@@ -345,20 +349,49 @@ function calculateProperties(pixels, imageData, width, height) {
     }
     
     var data = imageData.data;
+    var totalPixels = width * height;
     var sumX = 0, sumY = 0;
     var sumR = 0, sumG = 0, sumB = 0;
+    var validCount = 0;
     
     for (var i = 0; i < size; i++) {
-        // ✅ FIX: Use idx * 4 because ImageData stores RGBA (4 bytes per pixel)
-        var idx = pixels[i].idx * 4;
+        var pixelIdx = pixels[i].idx;
+        
+        // Safety check - pastikan idx valid
+        if (pixelIdx < 0 || pixelIdx >= totalPixels) {
+            continue;
+        }
+        
+        var dataIdx = pixelIdx * 4;
+        
+        // Safety check - pastikan dataIdx dalam bounds
+        if (dataIdx + 2 >= data.length) {
+            continue;
+        }
+        
+        var r = data[dataIdx];
+        var g = data[dataIdx + 1];
+        var b = data[dataIdx + 2];
+        
+        // Skip if invalid color values
+        if (isNaN(r) || isNaN(g) || isNaN(b)) {
+            continue;
+        }
+        
         sumX += pixels[i].x;
         sumY += pixels[i].y;
-        sumR += data[idx];       // Red
-        sumG += data[idx + 1];   // Green
-        sumB += data[idx + 2];   // Blue
+        sumR += r;
+        sumG += g;
+        sumB += b;
+        validCount++;
     }
     
-    var centroid = { x: sumX / size, y: sumY / size };
+    // Use validCount if we skipped some pixels
+    if (validCount === 0) {
+        validCount = 1; // Prevent division by zero
+    }
+    
+    var centroid = { x: sumX / validCount, y: sumY / validCount };
     var perimeter = calculatePerimeter(pixels, width, height);
     var circularity = perimeter > 0 ? Math.min((4 * Math.PI * size) / (perimeter * perimeter), 1) : 0;
     
@@ -367,9 +400,9 @@ function calculateProperties(pixels, imageData, width, height) {
         centroid: centroid,
         perimeter: perimeter,
         circularity: circularity,
-        meanR: sumR / size,
-        meanG: sumG / size,
-        meanB: sumB / size
+        meanR: sumR / validCount,
+        meanG: sumG / validCount,
+        meanB: sumB / validCount
     };
 }
 
