@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aqua Insight - Advanced Aquaculture Analytics</title>
+    <title>Aqua Insight v0.1 - Advanced Aquaculture Analytics</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
@@ -12,147 +12,126 @@
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <div class="logo">
+            <div class="header-left">
                 <img src="images/logo.png" alt="Aqua Insight" class="logo-img">
-                <span class="logo-text">Aqua Insight</span>
+                <div class="system-info">
+                    <h1 class="system-name">Aqua Insight</h1>
+                    <span class="system-version">v0.1</span>
+                </div>
             </div>
-            <div class="header-info">
-                <span>Technology Division • Central Proteina Prima</span>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <button class="dropdown-btn">Features</button>
+                    <div class="dropdown-content">
+                        <a href="#imaging">Imaging</a>
+                        <a href="#analytical">Analytical</a>
+                        <a href="#biological">Biological</a>
+                        <a href="#decision">Decision</a>
+                    </div>
+                </div>
+                <a href="mailto:tech@centralproteina.com" class="contact-btn">Contact</a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Welcome Section -->
+    <section class="welcome">
         <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Advanced <span class="gradient-text">Aquaculture</span><br>
-                    Analytics Platform
-                </h1>
-                <p class="hero-subtitle">
-                    Precision tools for aquaculture analysis powered by cutting-edge imaging, 
-                    analytical, biological, and decision-making technologies.
+            <div class="welcome-content">
+                <h2 class="welcome-title">Welcome to Aqua Insight</h2>
+                <p class="welcome-text">
+                    Advanced aquaculture analytics platform developed by 
+                    <strong>Technology Division, Central Proteina Prima</strong>. 
+                    Precision tools for imaging analysis, biological research, 
+                    statistical evaluation, and decision support in aquaculture.
                 </p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-number">5</span>
-                        <span class="stat-label">Core Modules</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">15+</span>
-                        <span class="stat-label">Analytical Tools</span>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Grid -->
-    <section class="features">
+    <!-- Features Section -->
+    <section class="features" id="imaging">
         <div class="container">
-            <h2 class="section-title">Feature Modules</h2>
-            <p class="section-subtitle">Comprehensive aquaculture analysis toolkit</p>
-            
-            <div class="features-grid">
-                <!-- IMAGING Features -->
-                <div class="feature-category">
-                    <div class="category-header">
-                        <h3>IMAGING</h3>
-                        <div class="category-line"></div>
-                    </div>
-                    <div class="feature-cards">
-                        <div class="feature-card" data-feature="particle-analyzer">
-                            <div class="feature-icon">🔬</div>
-                            <h4>Particle Analyzer</h4>
-                            <p>Automated particle detection and morphometric analysis</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="image-recognition">
-                            <div class="feature-icon">🖼️</div>
-                            <h4>Image Recognition</h4>
-                            <p>AI-powered species identification from microscopy images</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="plate-count">
-                            <div class="feature-icon">📊</div>
-                            <h4>Plate Count</h4>
-                            <p>Automated bacterial colony counting and analysis</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="plankton-analysis">
-                            <div class="feature-icon">🌊</div>
-                            <h4>Plankton Analysis</h4>
-                            <p>Plankton classification and biomass estimation</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="electrophoresis">
-                            <div class="feature-icon">⚡</div>
-                            <h4>Electrophoresis</h4>
-                            <p>Gel electrophoresis lane detection and band quantification</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                    </div>
+            <div class="category-section">
+                <div class="category-header">
+                    <h3>📷 IMAGING</h3>
                 </div>
-
-                <!-- ANALYTICAL Features -->
-                <div class="feature-category">
-                    <div class="category-header">
-                        <h3>ANALYTICAL</h3>
-                        <div class="category-line"></div>
-                    </div>
-                    <div class="feature-cards">
-                        <div class="feature-card" data-feature="statistics">
-                            <div class="feature-icon">📈</div>
-                            <h4>Statistics</h4>
-                            <p>Advanced statistical analysis and hypothesis testing</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="graph">
-                            <div class="feature-icon">📉</div>
-                            <h4>Graph</h4>
-                            <p>Interactive data visualization and graphing tools</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                    </div>
+                <div class="features-list">
+                    <a href="under-development.html?feature=Particle Analyzer" class="feature-btn">
+                        <span class="feature-icon">🔬</span>
+                        <span class="feature-title">Particle Analyzer</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Image Recognition" class="feature-btn">
+                        <span class="feature-icon">🖼️</span>
+                        <span class="feature-title">Image Recognition</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Plate Count" class="feature-btn">
+                        <span class="feature-icon">📊</span>
+                        <span class="feature-title">Plate Count</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Plankton Analysis" class="feature-btn">
+                        <span class="feature-icon">🌊</span>
+                        <span class="feature-title">Plankton Analysis</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Electrophoresis" class="feature-btn">
+                        <span class="feature-icon">⚡</span>
+                        <span class="feature-title">Electrophoresis</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
                 </div>
+            </div>
 
-                <!-- BIOLOGICAL Features -->
-                <div class="feature-category">
-                    <div class="category-header">
-                        <h3>BIOLOGICAL</h3>
-                        <div class="category-line"></div>
-                    </div>
-                    <div class="feature-cards">
-                        <div class="feature-card" data-feature="wet-mount">
-                            <div class="feature-icon">🔍</div>
-                            <h4>Wet Mount</h4>
-                            <p>Parasite and pathogen identification from wet mount slides</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                        <div class="feature-card" data-feature="gene-expression">
-                            <div class="feature-icon">🧬</div>
-                            <h4>Gene Expression</h4>
-                            <p>qPCR data analysis and gene expression profiling</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                    </div>
+            <div class="category-section" id="analytical">
+                <div class="category-header">
+                    <h3>📈 ANALYTICAL</h3>
                 </div>
+                <div class="features-list">
+                    <a href="under-development.html?feature=Statistics" class="feature-btn">
+                        <span class="feature-icon">📈</span>
+                        <span class="feature-title">Statistics</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Graph" class="feature-btn">
+                        <span class="feature-icon">📉</span>
+                        <span class="feature-title">Graph</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                </div>
+            </div>
 
-                <!-- DECISION Features -->
-                <div class="feature-category">
-                    <div class="category-header">
-                        <h3>DECISION</h3>
-                        <div class="category-line"></div>
-                    </div>
-                    <div class="feature-cards">
-                        <div class="feature-card" data-feature="risk-analysis">
-                            <div class="feature-icon">⚠️</div>
-                            <h4>Risk Analysis</h4>
-                            <p>AI-driven risk assessment and decision support system</p>
-                            <span class="under-dev">Under Development</span>
-                        </div>
-                    </div>
+            <div class="category-section" id="biological">
+                <div class="category-header">
+                    <h3>🧬 BIOLOGICAL</h3>
+                </div>
+                <div class="features-list">
+                    <a href="under-development.html?feature=Wet Mount" class="feature-btn">
+                        <span class="feature-icon">🔍</span>
+                        <span class="feature-title">Wet Mount</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                    <a href="under-development.html?feature=Gene Expression" class="feature-btn">
+                        <span class="feature-icon">🧬</span>
+                        <span class="feature-title">Gene Expression</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category-section" id="decision">
+                <div class="category-header">
+                    <h3>⚠️ DECISION</h3>
+                </div>
+                <div class="features-list">
+                    <a href="under-development.html?feature=Risk Analysis" class="feature-btn">
+                        <span class="feature-icon">⚠️</span>
+                        <span class="feature-title">Risk Analysis</span>
+                        <span class="feature-status">Under Development</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -162,44 +141,14 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">
-                    <span>Aqua Insight</span>
-                </div>
                 <div class="footer-info">
-                    <p>© 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
-                    <p>Advanced Aquaculture Analytics Platform</p>
+                    <p>&copy; 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
+                    <p>Aqua Insight v0.1 - Advanced Aquaculture Analytics Platform</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Under Development Modal -->
-    <div id="underDevModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🚧 Under Development</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>This feature is currently under development by <strong>Technology Division, Central Proteina Prima</strong>.</p>
-                <p>Stay tuned for the upcoming release!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Ganti script di index.html dengan ini: -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const featureCards = document.querySelectorAll('.feature-card');
-    
-    featureCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const featureName = this.dataset.feature.replace(/-/g, ' ').toUpperCase();
-            // Redirect ke under-development page dengan parameter
-            window.location.href = `under-development.html?feature=${featureName}`;
-        });
-    });
-});
-</script>
+    <script src="js/main.js"></script>
 </body>
 </html>
