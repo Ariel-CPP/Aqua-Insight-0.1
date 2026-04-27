@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Particle Analyzer - Aqua Insight v0.1</title>
+    <!-- FIX: Relative path ke root CSS -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -132,14 +133,15 @@
         </div>
 
         <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="loading-overlay">
-            <div class="loading-content">
-                <img src="images/loading.gif" alt="Loading" class="loading-spinner">
-                <p>Analyzing particles... Please wait</p>
-            </div>
+       <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Analyzing particles... Please wait</p>
         </div>
+    </div>
     </main>
 
+ <!-- FIX JS paths -->
     <script src="js/image-processor.js"></script>
     <script src="js/particle-analyzer.js"></script>
     <script src="js/main.js"></script>
