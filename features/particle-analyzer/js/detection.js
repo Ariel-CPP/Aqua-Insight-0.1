@@ -26,6 +26,81 @@ const Detection = {
         return { redChannel, greenChannel, blueChannel, width, height };
     },
 
+     // Convert ImageData to Grayscale Uint8Array
+    toGrayscale(imageData) {
+        const width = imageData.width;
+        const height = imageData.height;
+        const data = imageData.data;
+        const gray = new Uint8ClampedArray(width * height);
+
+        for (let i = 0; i < width * height; i++) {
+            const idx = i * 4;
+            gray[i] = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+        }
+        return gray;
+    },
+
+    // Create ImageData object from grayscale buffer
+    createGrayscaleImageData(gray, width, height) {
+        const imageData = new ImageData(width, height);
+        for (let i = 0; i < width * height; i++) {
+            const v = gray[i];
+            imageData.data[i * 4] = v;
+            imageData.data[i * 4 + 1] = v;
+            imageData.data[i * 4 + 2] = v;
+            imageData.data[i * 4 + 3] = 255;
+        }
+        return imageData;
+    },
+
+    // Edge detection with Sobel operator on grayscale Uint8Array
+    sobelEdgeDetection(gray, width, height) {
+        const kernelX = [
+            [-1, 0, 1],
+            [-2, 0, 2],
+            [-1, 0, 1]
+        ];
+        const kernelY = [
+            [-1, -2, -1],
+            [0, 0, 0],
+            [1, 2, 1]
+        ];
+        const edge = new Uint8ClampedArray(width * height);
+
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let gx = 0;
+                let gy = 0;
+
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const pixel = gray[(y + ky) * width + (x + kx)];
+                        gx += kernelX[ky + 1][kx + 1] * pixel;
+                        gy += kernelY[ky + 1][kx + 1] * pixel;
+                    }
+                }
+
+                let g = Math.sqrt(gx * gx + gy * gy);
+                edge[y * width + x] = g > 255 ? 255 : g;
+            }
+        }
+        return edge;
+    },
+
+    // Create ImageData from edge Uint8ClampedArray
+    createEdgeImageData(edge, width, height) {
+        const imageData = new ImageData(width, height);
+        for (let i = 0; i < width * height; i++) {
+            const v = edge[i];
+            imageData.data[i * 4] = v;
+            imageData.data[i * 4 + 1] = v;
+            imageData.data[i * 4 + 2] = v;
+            imageData.data[i * 4 + 3] = 255;
+        }
+        return imageData;
+    }
+};
+
     /**
      * Apply threshold to channel
      */
