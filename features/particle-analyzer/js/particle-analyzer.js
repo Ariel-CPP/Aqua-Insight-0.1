@@ -290,26 +290,35 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
 
 // ==================== ANALYZE PARTICLE ====================
 function analyzeParticle(pixels, imageData, width, height) {
+    // ✅ FIX: Safety check for pixels
+    if (!pixels || pixels.length === 0) {
+        return { 
+            size: 0, 
+            centroid: { x: 0, y: 0 }, 
+            meanR: 0, 
+            meanG: 0, 
+            meanB: 0, 
+            circularity: 0, 
+            perimeter: 0 
+        };
+    }
+    
     var size = pixels.length;
     var data = imageData.data;
-    
-    if (size === 0) {
-        return { size: 0, centroid: { x: 0, y: 0 }, meanR: 0, meanG: 0, meanB: 0, circularity: 0, perimeter: 0 };
-    }
     
     var sumX = 0, sumY = 0, sumR = 0, sumG = 0, sumB = 0;
     
     for (var i = 0; i < size; i++) {
         var pixelIdx = pixels[i].idx;
         
-        // ✅ FIX: Skip invalid pixels
+        // Skip invalid pixels
         if (pixelIdx < 0 || pixelIdx >= width * height) {
             continue;
         }
         
         var dataIdx = pixelIdx * 4;
         
-        // ✅ FIX: Bounds check
+        // Bounds check
         if (dataIdx + 2 >= data.length) {
             continue;
         }
