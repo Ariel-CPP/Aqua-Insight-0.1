@@ -139,3 +139,28 @@ class ParticleAnalyzer {
         };
     }
 }
+class ImageProcessor {
+    constructor() {
+        this.originalImage = null;
+        this.channels = {};
+    }
+    
+    loadImage(file) {
+        return new Promise(function(resolve) {
+            const img = new Image();
+            img.onload = function() {
+                this.originalImage = img;
+                resolve(img);
+            }.bind(this);
+            img.src = URL.createObjectURL(file);
+        }.bind(this));
+    }
+    
+    extractChannels(img) {
+        this.channels.original = { width: img.width, height: img.height };
+    }
+    
+    getChannelImageData(channel) {
+        return this.channels.original;
+    }
+}
