@@ -206,27 +206,31 @@ const Detection = {
     /**
      * Calculate contrast ratio for each channel
      */
-    calculateContrastRatio(rgbChannels) {
-        const results = {};
+   calculateContrastRatio: function(rgbChannels) {
+    var results = {};
 
-        for (const channel of ['red', 'green', 'blue']) {
-            const channelData = rgbChannels[channel + 'Channel'];
-            const stats = this.getChannelStats(channelData);
-            const stdDev = this.calculateStdDev(channelData, stats.mean);
+    // ✅ Ganti ke rgbChannels[channel]
+    for (var c = 0; c < 3; c++) {
+        var channelNames = ['red', 'green', 'blue'];
+        var channel = channelNames[c];
+        var channelData = rgbChannels[channel];
+        var stats = this.getChannelStats(channelData);
+        var stdDev = this.calculateStdDev(channelData, stats.mean);
 
-            results[channel] = {
-                contrast: stdDev,
-                stats: stats
-            };
-        }
-
-        // Find best channel
-        const sorted = Object.entries(results).sort((a, b) => b[1].contrast - a[1].contrast);
-        results.bestChannel = sorted[0][0];
-
-        return results;
+        results[channel] = {
+            contrast: stdDev,
+            stats: stats
+        };
     }
-};
+
+    // Find best channel
+    var sorted = Object.entries(results).sort(function(a, b) {
+        return b[1].contrast - a[1].contrast;
+    });
+    results.bestChannel = sorted[0][0];
+
+    return results;
+},
 
 // Export
 window.Detection = Detection;
