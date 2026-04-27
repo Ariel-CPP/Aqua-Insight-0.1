@@ -1,226 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Analyzer - Aqua Insight</title>
-    
-    <!-- Global Styles -->
-    <link rel="stylesheet" href="../css/style.css">
-    
-    <!-- Feature Styles -->
-    <link rel="stylesheet" href="css/particle-counter.css">
-    
-    <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aqua Insight v0.1 - Particle Analyzer</title>
+
+  <!-- Global Styles -->
+  <link rel="stylesheet" href="../css/style.css" />
+  
+  <!-- Feature Specific Styles -->
+  <link rel="stylesheet" href="css/particle-counter.css" />
+
+  <!-- Google Fonts for consistent typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="../images/favicon.ico" />
+  
+  <!-- External Libraries (if needed) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js" defer></script>
+
+  <!-- Your scripts, defer to load after body -->
+  <script src="js/utils.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/detection.js" defer></script>
+  <script src="js/particle-analysis.js" defer></script>
+  <script src="js/zoom-pan.js" defer></script>
+  <script src="js/export.js" defer></script>
+  <script src="js/main.js" defer></script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="top-nav">
-        <div class="nav-container">
-            <a href="../index.html" class="logo-link">
-                <img src="../images/logo.png" alt="Aqua Insight" class="logo">
-            </a>
-            <div class="nav-title">
-                <h1>Particle Analyzer</h1>
-                <span class="subtitle">Advanced Particle Detection & Analysis</span>
-            </div>
-            <div class="nav-actions">
-                <button id="backToDashboard" class="btn-secondary">← Dashboard</button>
-            </div>
+  <!-- Header same as homepage -->
+  <header class="header">
+    <div class="container">
+      <div class="header-left">
+        <img src="../images/logo.png" alt="Aqua Insight" class="logo-img" />
+        <div class="system-info">
+          <h1 class="system-name">Aqua Insight</h1>
+          <span class="system-version">v0.1</span>
         </div>
-    </nav>
+      </div>
 
+      <div class="header-right">
+        <div class="dropdown">
+          <button class="dropdown-btn">Features</button>
+          <div class="dropdown-content">
+            <a href="../index.html#imaging">Imaging</a>
+            <a href="../index.html#analytical">Analytical</a>
+            <a href="../index.html#biological">Biological</a>
+            <a href="../index.html#decision">Decision</a>
+          </div>
+        </div>
+        <a href="../contact.html" class="contact-btn">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content container -->
+  <main class="container" style="margin-top:1.5rem; margin-bottom:2rem;">
     <div class="main-container">
-        <!-- Left Panel - Controls -->
-        <div class="control-panel">
-            <div class="panel-header">
-                <h2>🎛️ Controls</h2>
-            </div>
+      <!-- Left Panel - Controls -->
+      <div class="control-panel">
+        <div class="panel-header">
+          <h2>🎛️ Controls</h2>
+        </div>
 
-            <!-- File Upload -->
-            <div class="control-section">
-                <h3>📁 Upload Images</h3>
-                <div class="file-upload-area" id="fileUploadArea">
-                    <input type="file" id="imageInput" multiple accept="image/*" hidden>
-                    <label for="imageInput" class="file-upload-btn">
-                        <span>📷 Choose Images</span>
-                        <small>Single or Batch (JPG, PNG, TIFF)</small>
-                    </label>
-                    <div id="fileList" class="file-list"></div>
-                </div>
-            </div>
+        <!-- File Upload -->
+        <div class="control-section">
+          <h3>📁 Upload Images</h3>
+          <div class="file-upload-area" id="fileUploadArea">
+            <input type="file" id="imageInput" multiple accept="image/*" hidden />
+            <label for="imageInput" class="file-upload-btn">
+              <span>📷 Choose Images</span>
+              <small>Single or Batch (JPG, PNG, TIFF)</small>
+            </label>
+            <div id="fileList" class="file-list"></div>
+          </div>
+        </div>
 
-            <!-- RGB Stack Selector -->
-            <div class="control-section" id="rgbStackSection" style="display: none;">
-                <h3>🌈 RGB Stack</h3>
-                <div class="rgb-stack-selector">
-                    <button class="rgb-btn active" data-channel="red">Red</button>
-                    <button class="rgb-btn" data-channel="green">Green</button>
-                    <button class="rgb-btn" data-channel="blue">Blue</button>
-                </div>
+        <!-- RGB Stack Selector -->
+        <div class="control-section" id="rgbStackSection" style="display: none;">
+          <h3>🌈 RGB Stack</h3>
+          <div class="rgb-stack-selector">
+            <button class="rgb-btn active" data-channel="red">Red</button>
+            <button class="rgb-btn" data-channel="green">Green</button>
+            <button class="rgb-btn" data-channel="blue">Blue</button>
+          </div>
+        </div>
+
+        <!-- Channel Preview Images -->
+        <div class="control-section" id="channelPreviewSection" style="display:none;">
+          <h3>🖼️ Channel Previews</h3>
+          <div class="channel-previews">
+            <div class="preview-item">
+              <label>Full RGB</label>
+              <canvas id="fullRgbCanvas" width="150" height="150"></canvas>
             </div>
-<!-- Channel Preview Images -->
-<div class="control-section" id="channelPreviewSection" style="display:none;">
-    <h3>🖼️ Channel Previews</h3>
-    <div class="channel-previews">
-        <div class="preview-item">
-            <label>Full RGB</label>
-            <canvas id="fullRgbCanvas" width="150" height="150"></canvas>
+            <div class="preview-item">
+              <label>Grayscale</label>
+              <canvas id="grayscaleCanvas" width="150" height="150"></canvas>
+            </div>
+            <div class="preview-item">
+              <label>Red Channel</label>
+              <canvas id="redCanvas" width="150" height="150"></canvas>
+            </div>
+            <div class="preview-item">
+              <label>Green Channel</label>
+              <canvas id="greenCanvas" width="150" height="150"></canvas>
+            </div>
+            <div class="preview-item">
+              <label>Blue Channel</label>
+              <canvas id="blueCanvas" width="150" height="150"></canvas>
+            </div>
+            <div class="preview-item">
+              <label>Edge Detection (Sobel) on Selected Channel</label>
+              <canvas id="edgeCanvas" width="150" height="150"></canvas>
+            </div>
+          </div>
         </div>
-        <div class="preview-item">
-            <label>Grayscale</label>
-            <canvas id="grayscaleCanvas" width="150" height="150"></canvas>
+
+        <!-- Threshold & Analysis Settings -->
+        <div class="control-section" id="analysisSettings" style="display: none;">
+          <h3>⚙️ Analysis Settings</h3>
+
+          <!-- Threshold -->
+          <div class="setting-group">
+            <label>Threshold (0-255)</label>
+            <div class="slider-container">
+              <input type="range" id="thresholdSlider" min="0" max="255" value="128" />
+              <span id="thresholdValue">128</span>
+            </div>
+          </div>
+
+          <!-- Dark Background -->
+          <div class="setting-group checkbox-group">
+            <label><input type="checkbox" id="darkBackground" /> Dark Background</label>
+          </div>
+
+          <!-- Particle Size -->
+          <div class="setting-group">
+            <label>Size (pixels²)</label>
+            <div class="dual-slider">
+              <div>
+                <span>Min</span>
+                <input type="range" id="sizeMinSlider" min="1" max="1000" value="10" />
+                <span id="sizeMinValue">10</span>
+              </div>
+              <div>
+                <span>Max</span>
+                <input type="range" id="sizeMaxSlider" min="100" max="10000" value="5000" />
+                <span id="sizeMaxValue">5000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Circularity -->
+          <div class="setting-group">
+            <label>Circularity (0-1)</label>
+            <div class="dual-slider">
+              <div>
+                <span>Min</span>
+                <input type="range" id="circularityMinSlider" min="0" max="1" step="0.01" value="0.2" />
+                <span id="circularityMinValue">0.20</span>
+              </div>
+              <div>
+                <span>Max</span>
+                <input type="range" id="circularityMaxSlider" min="0.5" max="1" step="0.01" value="1" />
+                <span id="circularityMaxValue">1.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analyze Button -->
+          <button id="analyzeBtn" class="analyze-btn" disabled>🔬 Analyze Particles</button>
         </div>
-        <div class="preview-item">
-            <label>Red Channel</label>
-            <canvas id="redCanvas" width="150" height="150"></canvas>
+
+        <!-- Summary -->
+        <div class="control-section" id="summarySection" style="display: none;">
+          <h3>📊 Summary</h3>
+          <div class="summary-stats">
+            <div class="stat-item">
+              <span class="stat-label">Total Particles</span>
+              <span class="stat-value" id="totalParticles">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Area</span>
+              <span class="stat-value" id="totalArea">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Coverage %</span>
+              <span class="stat-value" id="coveragePercent">-</span>
+            </div>
+          </div>
         </div>
-        <div class="preview-item">
-            <label>Green Channel</label>
-            <canvas id="greenCanvas" width="150" height="150"></canvas>
+      </div>
+
+      <!-- Right Panel - Canvas & Results -->
+      <div class="canvas-panel">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Analyzing particles...</div>
         </div>
-        <div class="preview-item">
-            <label>Blue Channel</label>
-            <canvas id="blueCanvas" width="150" height="150"></canvas>
+
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+          <canvas id="imageCanvas"></canvas>
+          <div class="canvas-controls">
+            <button id="zoomIn" class="zoom-btn">🔍+</button>
+            <button id="zoomOut" class="zoom-btn">🔍-</button>
+            <button id="resetView" class="zoom-btn">↻</button>
+          </div>
         </div>
-        <div class="preview-item">
-            <label>Edge Detection (Sobel) on Selected Channel</label>
-            <canvas id="edgeCanvas" width="150" height="150"></canvas>
+
+        <!-- Results Table -->
+        <div class="results-panel" id="resultsPanel" style="display: none;">
+          <div class="results-header">
+            <h3>📋 Particle Results</h3>
+            <div class="export-buttons">
+              <button id="exportCSV" class="btn-small">📊 CSV</button>
+              <button id="exportPNG" class="btn-small">🖼️ PNG</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="resultsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Size (px²)</th>
+                  <th>Mean R</th>
+                  <th>Mean G</th>
+                  <th>Mean B</th>
+                  <th>Circularity</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-            <!-- Threshold & Analysis Settings -->
-            <div class="control-section" id="analysisSettings" style="display: none;">
-                <h3>⚙️ Analysis Settings</h3>
-                
-                <!-- Threshold -->
-                <div class="setting-group">
-                    <label>Threshold (0-255)</label>
-                    <div class="slider-container">
-                        <input type="range" id="thresholdSlider" min="0" max="255" value="128">
-                        <span id="thresholdValue">128</span>
-                    </div>
-                </div>
+  </main>
 
-                <!-- Dark Background -->
-                <div class="setting-group checkbox-group">
-                    <label>
-                        <input type="checkbox" id="darkBackground"> Dark Background
-                    </label>
-                </div>
-
-                <!-- Particle Size -->
-                <div class="setting-group">
-                    <label>Size (pixels²)</label>
-                    <div class="dual-slider">
-                        <div>
-                            <span>Min</span>
-                            <input type="range" id="sizeMinSlider" min="1" max="1000" value="10">
-                            <span id="sizeMinValue">10</span>
-                        </div>
-                        <div>
-                            <span>Max</span>
-                            <input type="range" id="sizeMaxSlider" min="100" max="10000" value="5000">
-                            <span id="sizeMaxValue">5000</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Circularity -->
-                <div class="setting-group">
-                    <label>Circularity (0-1)</label>
-                    <div class="dual-slider">
-                        <div>
-                            <span>Min</span>
-                            <input type="range" id="circularityMinSlider" min="0" max="1" step="0.01" value="0.2">
-                            <span id="circularityMinValue">0.20</span>
-                        </div>
-                        <div>
-                            <span>Max</span>
-                            <input type="range" id="circularityMaxSlider" min="0.5" max="1" step="0.01" value="1">
-                            <span id="circularityMaxValue">1.00</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Analyze Button -->
-                <button id="analyzeBtn" class="analyze-btn" disabled>🔬 Analyze Particles</button>
-            </div>
-
-            <!-- Summary -->
-            <div class="control-section" id="summarySection" style="display: none;">
-                <h3>📊 Summary</h3>
-                <div class="summary-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Total Particles</span>
-                        <span class="stat-value" id="totalParticles">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Total Area</span>
-                        <span class="stat-value" id="totalArea">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Coverage %</span>
-                        <span class="stat-value" id="coveragePercent">-</span>
-                    </div>
-                </div>
-            </div>
+  <!-- Footer same as homepage -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-info">
+          <p>&copy; 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
+          <p>Aqua Insight v0.1 - <strong>Particle Analyzer LIVE!</strong></p>
         </div>
-
-        <!-- Right Panel - Canvas & Results -->
-        <div class="canvas-panel">
-            <!-- Loading Overlay -->
-            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Analyzing particles...</div>
-            </div>
-
-            <!-- Canvas Container -->
-            <div class="canvas-container">
-                <canvas id="imageCanvas"></canvas>
-                <div class="canvas-controls">
-                    <button id="zoomIn" class="zoom-btn">🔍+</button>
-                    <button id="zoomOut" class="zoom-btn">🔍-</button>
-                    <button id="resetView" class="zoom-btn">↻</button>
-                </div>
-            </div>
-
-            <!-- Results Table -->
-            <div class="results-panel" id="resultsPanel" style="display: none;">
-                <div class="results-header">
-                    <h3>📋 Particle Results</h3>
-                    <div class="export-buttons">
-                        <button id="exportCSV" class="btn-small">📊 CSV</button>
-                        <button id="exportPNG" class="btn-small">🖼️ PNG</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table id="resultsTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Size (px²)</th>
-                                <th>Mean R</th>
-                                <th>Mean G</th>
-                                <th>Mean B</th>
-                                <th>Circularity</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="js/utils.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/detection.js"></script>
-    <script src="js/particle-analysis.js"></script>
-    <script src="js/zoom-pan.js"></script>
-    <script src="js/export.js"></script>
-    <script src="js/main.js"></script>
+  </footer>
 </body>
 </html>
