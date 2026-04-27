@@ -426,3 +426,260 @@ body {
         font-size: 2rem;
     }
 }
+/* Tambahkan di akhir file css/style.css */
+
+/* Under Development Page */
+.under-dev-page {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.logo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1a73e8, #34c759);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 1rem;
+}
+
+.under-dev-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 0 100px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.under-dev-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.under-dev-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.under-dev-icon {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+}
+
+.under-dev-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+.under-dev-subtitle {
+    font-size: 1.3rem;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 4rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.dev-progress {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 4rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.progress-item {
+    margin-bottom: 2rem;
+}
+
+.progress-label {
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 2s ease-in-out;
+}
+
+.design-fill {
+    background: linear-gradient(90deg, #10b981, #34d399);
+    width: 90%;
+    animation: fillDesign 2s ease-out;
+}
+
+.backend-fill {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    width: 60%;
+    animation: fillBackend 2s ease-out 0.3s both;
+}
+
+.ai-fill {
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    width: 40%;
+    animation: fillAI 2s ease-out 0.6s both;
+}
+
+.testing-fill {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    width: 20%;
+    animation: fillTesting 2s ease-out 1s both;
+}
+
+@keyframes fillDesign {
+    from { width: 0; }
+}
+
+@keyframes fillBackend {
+    from { width: 0; }
+}
+
+@keyframes fillAI {
+    from { width: 0; }
+}
+
+@keyframes fillTesting {
+    from { width: 0; }
+}
+
+.feature-preview {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 4rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.feature-preview h3 {
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.feature-preview ul {
+    list-style: none;
+    text-align: left;
+}
+
+.feature-preview li {
+    color: rgba(255,255,255,0.9);
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+    font-weight: 500;
+}
+
+.feature-preview li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border-radius: 50%;
+}
+
+.cta-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(20px);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.btn-back:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+.notify-section {
+    color: rgba(255,255,255,0.8);
+}
+
+.notify-placeholder {
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+/* Update modal untuk konsistensi (opsional) */
+.modal-content {
+    animation: none;
+}
+
+@media (max-width: 768px) {
+    .under-dev-hero {
+        padding: 120px 0 60px;
+        text-align: center;
+    }
+    
+    .dev-progress {
+        padding: 2rem;
+    }
+    
+    .cta-section {
+        gap: 1.5rem;
+    }
+    
+    .feature-preview {
+        padding: 2rem;
+    }
+}
