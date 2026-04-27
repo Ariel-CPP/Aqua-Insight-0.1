@@ -325,3 +325,43 @@ body {
         height: 46px;
     }
 }
+
+/* Additional styles for JS features */
+.dropdown-content a.active {
+    background: linear-gradient(135deg, #1a73e8, #34c759) !important;
+    color: white !important;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #1a73e8, #34c759);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.4);
+}
+
+.back-to-top:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 30px rgba(26, 115, 232, 0.6);
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
