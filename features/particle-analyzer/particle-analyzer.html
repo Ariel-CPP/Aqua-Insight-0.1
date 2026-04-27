@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Analyzer - Aqua Insight</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 20px;
+        }
+        
+        .upload-box {
+            border: 3px dashed #38bdf8;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-box:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+        
+        .upload-box input {
+            display: none;
+        }
+        
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .canvas-wrapper {
+            flex: 1;
+            min-width: 600px;
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #mainCanvas {
+            display: block;
+            width: 100%;
+            cursor: crosshair;
+        }
+        
+        .controls {
+            width: 350px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #334155;
+            outline: none;
+        }
+        
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            float: right;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .stats {
+            background: #334155;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #475569;
+        }
+        
+        .stats-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stats-value {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        
+        .preview-section {
+            margin-top: 20px;
+        }
+        
+        .preview-section h3 {
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        
+        .preview-canvas {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            background: #0f172a;
+            margin-bottom: 10px;
+        }
+        
+        .channel-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .channel-btn {
+            padding: 8px 16px;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .channel-btn:hover {
+            border-color: #38bdf8;
+        }
+        
+        .channel-btn.active {
+            background: #38bdf8;
+            border-color: #38bdf8;
+            color: #0f172a;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        
+        .results-table th {
+            background: #334155;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .results-table td {
+            padding: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #22c55e;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Particle Analyzer</h1>
+        
+        <div class="upload-box" id="uploadBox">
+            <p>📤 Click atau drag & drop gambar untuk upload</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Channel <span class="value-display" id="channelValue">Red</span></label>
+                    <div class="channel-btns">
+                        <button class="channel-btn active" data-channel="red">🔴 Red</button>
+                        <button class="channel-btn" data-channel="green">🟢 Green</button>
+                        <button class="channel-btn" data-channel="blue">🔵 Blue</button>
+                        <button class="channel-btn" data-channel="gray">⚪ Gray</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Threshold <span class="value-display" id="thresholdValue">128</span></label>
+                    <input type="range" id="thresholdSlider" min="0" max="255" value="128">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="invertCheck">
+                    <label for="invertCheck">Dark Background</label>
+                </div>
+                
+                <div class="control-group">
+                    <label>Min Size (px²) <span class="value-display" id="minSizeValue">10</span></label>
+                    <input type="range" id="minSizeSlider" min="1" max="1000" value="10">
+                </div>
+                
+                <div class="control-group">
+                    <label>Max Size (px²) <span class="value-display" id="maxSizeValue">10000</span></label>
+                    <input type="range" id="maxSizeSlider" min="100" max="100000" value="10000">
+                </div>
+                
+                <button class="btn btn-primary" id="analyzeBtn" disabled>🔍 Analyze Particles</button>
+                <button class="btn btn-secondary" id="exportCsvBtn" disabled>📄 Export CSV</button>
+                <button class="btn btn-secondary" id="exportPngBtn" disabled>🖼️ Export PNG</button>
+                
+                <div class="stats" id="statsPanel" style="display: none;">
+                    <div class="stats-row">
+                        <span>Total Particles</span>
+                        <span class="stats-value" id="totalParticles">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Total Area</span>
+                        <span class="stats-value" id="totalArea">0 px²</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Coverage</span>
+                        <span class="stats-value" id="coverage">0%</span>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Preview</h3>
+                    <canvas id="previewCanvas" class="preview-canvas"></canvas>
+                    <p id="previewLabel" style="text-align: center; color: #64748b; font-size: 12px;">Original</p>
+                </div>
+                
+                <div class="table-container" id="tableContainer" style="display: none;">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Size</th>
+                                <th>R</th>
+                                <th>G</th>
+                                <th>B</th>
+                                <th>Circ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script src="particle-analyzer.js"></script>
+</body>
+</html>
