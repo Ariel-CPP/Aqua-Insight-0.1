@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Aqua Insight v0.1</title>
+    <link rel="stylesheet" href="css/contact.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+<body>
+    <!-- Header (IDENTICAL) -->
+    <header class="header">
+        <div class="container">
+            <div class="header-left">
+                <img src="images/logo.png" alt="Aqua Insight" class="logo-img">
+                <div class="system-info">
+                    <h1 class="system-name">Aqua Insight</h1>
+                    <span class="system-version">v0.1</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="index.html" class="back-btn">← Back to Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="contact-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Contact Us</h1>
+                <p class="hero-subtitle">
+                    Get in touch with <strong>Technology Division, Central Proteina Prima</strong> 
+                    for support, feedback, or feature requests.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Info -->
+    <section class="contact-info">
+        <div class="container">
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">📧</div>
+                    <h3>Email Support</h3>
+                    <p><a href="mailto:tech@centralproteina.com">tech@centralproteina.com</a></p>
+                    <p class="info-desc">Technical support & feature requests</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📱</div>
+                    <h3>Phone</h3>
+                    <p>+62 21 1234 5678</p>
+                    <p class="info-desc">Business hours: 09:00 - 17:00 WIB</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🏢</div>
+                    <h3>Office</h3>
+                    <p>Central Proteina Prima Tower</p>
+                    <p class="info-desc">Jakarta, Indonesia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="contact-form-section">
+        <div class="container">
+            <div class="form-container">
+                <h2>Send us a Message</h2>
+                <p class="form-subtitle">We'll respond within 24-48 hours</p>
+                
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="Your Name" required>
+                        <label for="name">Full Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="your.email@company.com" required>
+                        <label for="email">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" placeholder="+62 ...">
+                        <label for="phone">Phone (Optional)</label>
+                    </div>
+                    <div class="form-group full">
+                        <textarea id="message" placeholder="Tell us about your inquiry..." rows="5" required></textarea>
+                        <label for="message">Message</label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Send Message</button>
+                        <button type="reset" class="reset-btn">Reset Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>When will features be available?</h4>
+                    <p>Our roadmap targets Q1 2025 for initial feature releases. Follow our progress updates.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is there a demo available?</h4>
+                    <p>Demo access coming soon for select partners. Contact us for early access.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I request custom features?</h4>
+                    <p>Yes! Priority features for Central Proteina Prima partners. Submit your request above.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
+                    <p>Aqua Insight v0.1 - Advanced Aquaculture Analytics Platform</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/contact.js"></script>
+</body>
+</html>
