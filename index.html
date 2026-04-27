@@ -187,6 +187,19 @@
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <!-- Ganti script di index.html dengan ini: -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const featureCards = document.querySelectorAll('.feature-card');
+    
+    featureCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const featureName = this.dataset.feature.replace(/-/g, ' ').toUpperCase();
+            // Redirect ke under-development page dengan parameter
+            window.location.href = `under-development.html?feature=${featureName}`;
+        });
+    });
+});
+</script>
 </body>
 </html>
