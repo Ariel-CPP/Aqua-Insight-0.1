@@ -113,3 +113,92 @@ const Utils = {
 
 // Export for use in other modules
 window.Utils = Utils;
+
+/**
+ * Perform binary dilation on a binary mask
+ * @param {Uint8Array} mask Binary mask (0 or 255)
+ * @param {number} width Image width
+ * @param {number} height Image height
+ * @param {number} radius Radius of dilation kernel (usually 1 or 2)
+ * @returns {Uint8Array} Dilated mask
+ */
+function binaryDilation(mask, width, height, radius = 1) {
+    const output = new Uint8Array(width * height);
+    const r = radius;
+
+    for(let y = 0; y < height; y++) {
+        for(let x = 0; x < width; x++) {
+            let val = 0;
+            for(let dy = -r; dy <= r; dy++) {
+                for(let dx = -r; dx <= r; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if(nx >= 0 && nx < width && ny >=0 && ny < height) {
+                        if(mask[ny * width + nx] === 255) {
+                            val = 255;
+                            break;
+                        }
+                    }
+                }
+                if(val === 255) break;
+            }
+            output[y * width + x] = val;
+        }
+    }
+    return output;
+}
+
+/**
+ * Perform binary erosion on a binary mask
+ * @param {Uint8Array} mask Binary mask (0 or 255)
+ * @param {number} width Image width
+ * @param {number} height Image height
+ * @param {number} radius Radius of erosion kernel (usually 1 or 2)
+ * @returns {Uint8Array} Eroded mask
+ */
+function binaryErosion(mask, width, height, radius = 1) {
+    const output = new Uint8Array(width * height);
+    const r = radius;
+
+    for(let y = 0; y < height; y++) {
+        for(let x = 0; x < width; x++) {
+            let val = 255;
+            for(let dy = -r; dy <= r; dy++) {
+                for(let dx = -r; dx <= r; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if(nx >= 0 && nx < width && ny >=0 && ny < height) {
+                        if(mask[ny * width + nx] === 0) {
+                            val = 0;
+                            break;
+                        }
+                    } else {
+                        val = 0; // Outside bounds treated as background (0)
+                        break;
+                    }
+                }
+                if(val === 0) break;
+            }
+            output[y * width + x] = val;
+        }
+    }
+    return output;
+}
+
+/**
+ * Perform morphological opening (erosion followed by dilation)
+ */
+function morphologicalOpening(mask, width, height, radius = 1) {
+    const eroded = binaryErosion(mask, width, height, radius);
+    const opened = binaryDilation(eroded, width, height, radius);
+    return opened;
+}
+
+/**
+ * Perform morphological closing (dilation followed by erosion)
+ */
+function morphologicalClosing(mask, width, height, radius = 1) {
+    const dilated = binaryDilation(mask, width, height, radius);
+    const closed = binaryErosion(dilated, width, height, radius);
+    return closed;
+}
