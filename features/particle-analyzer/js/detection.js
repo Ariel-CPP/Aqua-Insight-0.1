@@ -261,3 +261,130 @@ function applyAdaptiveThreshold(imageData, blockSize = 21, C = 10) {
 
     return mask;
 }
+
+/**
+ * Compute distance transform of binary mask
+ * Assumes foreground pixels = 255, background = 0
+ * Uses approximate Euclidean distance transform
+ * @param {Uint8Array} binaryMask Binary mask
+ * @param {number} width Image width
+ * @param {number} height Image height
+ * @returns {Float32Array} Distance map
+ */
+function distanceTransform(binaryMask, width, height) {
+    const dist = new Float32Array(width * height);
+    const infinity = 1E9;
+
+    // Initialize distances
+    for(let i = 0; i < width * height; i++) {
+        dist[i] = binaryMask[i] === 0 ? 0 : infinity;
+    }
+
+    // Forward pass
+    for(let y = 1; y < height; y++) {
+        for(let x = 1; x < width; x++) {
+            const idx = y * width + x;
+            if(dist[idx] !== 0) {
+                dist[idx] = Math.min(dist[idx],
+                    dist[(y-1)*width + x] + 1,
+                    dist[y*width + (x-1)] + 1,
+                    dist[(y-1)*width + (x-1)] + Math.SQRT2);
+            }
+        }
+    }
+
+    // Backward pass
+    for(let y = height - 2; y >= 0; y--) {
+        for(let x = width - 2; x >= 0; x--) {
+            const idx = y * width + x;
+            if(dist[idx] !== 0) {
+                dist[idx] = Math.min(dist[idx],
+                    dist[(y+1)*width + x] + 1,
+                    dist[y*width + (x+1)] + 1,
+                    dist[(y+1)*width + (x+1)] + Math.SQRT2);
+            }
+        }
+    }
+
+    return dist;
+}
+
+/**
+ * Find local maxima in distance map to create markers (particles seeds)
+ * @param {Float32Array} distMap Distance transform array
+ * @param {number} width Image width
+ * @param {number} height Image height
+ * @param {number} radius Neighborhood radius
+ * @returns {Array} Array of marker positions {x, y}
+ */
+function findLocalMaxima(distMap, width, height, radius = 3) {
+    const markers = [];
+    for (let y = radius; y < height - radius; y++) {
+        for (let x = radius; x < width - radius; x++) {
+            const idx = y*width + x;
+            const value = distMap[idx];
+            let isMax = true;
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    if(dx === 0 && dy === 0) continue;
+                    if(distMap[(y+dy)*width + (x+dx)] >= value) {
+                        isMax = false;
+                        break;
+                    }
+                }
+                if(!isMax) break;
+            }
+            if(isMax && value > 0) {
+                markers.push({x, y});
+            }
+        }
+    }
+    return markers;
+}
+
+/**
+ * Perform simplified watershed segmentation using markers and distance transform
+ * Note: This is a skeleton for integration; full watershed requires a priority queue.
+ * We will treat each pixel as belonging to closest marker based on geodesic distance.
+ * @param {Uint8Array} binaryMask Foreground mask
+ * @param {Array} markers Marker coordinates
+ * @param {number} width Image width
+ * @param {number} height Image height
+ * @returns {Int32Array} Label image (0 background, >0 region labels)
+ */
+function watershedSegmentation(binaryMask, markers, width, height) {
+    const labels = new Int32Array(width * height);
+    const queue = [];
+    
+    // Initialize labels at marker points
+    markers.forEach((m, idx) => {
+        const pos = m.y * width + m.x;
+        labels[pos] = idx + 1; // label 1..N
+        queue.push({x: m.x, y: m.y, label: idx + 1});
+    });
+
+    // 4-connectivity neighbors
+    const neighbors = [
+        {dx: -1, dy: 0},
+        {dx: 1, dy: 0},
+        {dx: 0, dy: -1},
+        {dx: 0, dy: 1}
+    ];
+
+    while(queue.length > 0) {
+        const current = queue.shift();
+        neighbors.forEach(({dx, dy}) => {
+            const nx = current.x + dx;
+            const ny = current.y + dy;
+            if(nx >= 0 && nx < width && ny >=0 && ny < height) {
+                const nIdx = ny * width + nx;
+                if(binaryMask[nIdx] !== 0 && labels[nIdx] === 0) {
+                    labels[nIdx] = current.label;
+                    queue.push({x: nx, y: ny, label: current.label});
+                }
+            }
+        });
+    }
+
+    return labels;
+}
