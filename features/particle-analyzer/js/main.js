@@ -461,9 +461,17 @@ ZoomPan.drawParticleOverlayOnContext = function(ctx, particles) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
+        // ... (previous code continues)
+
         // Background for number
         const labelRadius = 12;
         ctx.beginPath();
         ctx.arc(x, y - Math.sqrt(particle.size / Math.PI) - 15, labelRadius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0, 50, 70, 0.9)';
-        ctx
+        ctx.fill();
+
+        // Draw number
+        ctx.fillStyle = '#00d4ff';
+        ctx.fillText(number.toString(), x, y - Math.sqrt(particle.size / Math.PI) - 15);
+    });
+};
