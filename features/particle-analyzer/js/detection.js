@@ -1,22 +1,25 @@
 /**
  * detection.js - Image Processing & Threshold Detection
- * Aqua Insight - Particle Analyzer
+ * Aqua Insight v0.1 - Particle Analyzer
  */
 
 const Detection = {
     /**
-     * Extract RGB channels from image
+     * Extract RGB channels from ImageData
+     * @param {ImageData} imageData
+     * @returns {Object} { redChannel, greenChannel, blueChannel, width, height }
      */
     extractRGBChannels(imageData) {
         const width = imageData.width;
         const height = imageData.height;
         const data = imageData.data;
+        const len = width * height;
 
-        const redChannel = new Uint8Array(width * height);
-        const greenChannel = new Uint8Array(width * height);
-        const blueChannel = new Uint8Array(width * height);
+        const redChannel = new Uint8Array(len);
+        const greenChannel = new Uint8Array(len);
+        const blueChannel = new Uint8Array(len);
 
-        for (let i = 0; i < width * height; i++) {
+        for (let i = 0; i < len; i++) {
             const idx = i * 4;
             redChannel[i] = data[idx];
             greenChannel[i] = data[idx + 1];
@@ -33,34 +36,41 @@ const Detection = {
         const width = imageData.width;
         const height = imageData.height;
         const data = imageData.data;
-        const gray = new Uint8Array(width * height);
+        const len = width * height;
+        const gray = new Uint8Array(len);
 
-        for (let i = 0; i < width * height; i++) {
+        for (let i = 0; i < len; i++) {
             const idx = i * 4;
-            gray[i] = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+            gray[i] = Math.round(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
         }
+
         return gray;
     },
 
     /**
-     * Create ImageData object from grayscale buffer
+     * Create ImageData from grayscale buffer
      */
     createGrayscaleImageData(gray, width, height) {
         const imageData = new ImageData(width, height);
+        const data = imageData.data;
+
         for (let i = 0; i < width * height; i++) {
             const v = gray[i];
-            imageData.data[i * 4] = v;
-            imageData.data[i * 4 + 1] = v;
-            imageData.data[i * 4 + 2] = v;
-            imageData.data[i * 4 + 3] = 255;
+            const idx = i * 4;
+            data[idx] = v;
+            data[idx + 1] = v;
+            data[idx + 2] = v;
+            data[idx + 3] = 255;
         }
+
         return imageData;
     },
 
     /**
-     * Edge detection with Sobel operator
+     * Sobel Edge Detection
      */
     sobelEdgeDetection(gray, width, height) {
+        const edge = new Uint8Array(width * height);
         const kernelX = [
             [-1, 0, 1],
             [-2, 0, 2],
@@ -71,7 +81,6 @@ const Detection = {
             [0, 0, 0],
             [1, 2, 1]
         ];
-        const edge = new Uint8Array(width * height);
 
         for (let y = 1; y < height - 1; y++) {
             for (let x = 1; x < width - 1; x++) {
@@ -86,62 +95,70 @@ const Detection = {
                     }
                 }
 
-                let g = Math.sqrt(gx * gx + gy * gy);
+                const g = Math.sqrt(gx * gx + gy * gy);
                 edge[y * width + x] = g > 255 ? 255 : g;
             }
         }
+
         return edge;
     },
 
     /**
-     * Create ImageData from edge Uint8Array
+     * Create ImageData from edge buffer
      */
     createEdgeImageData(edge, width, height) {
         const imageData = new ImageData(width, height);
+        const data = imageData.data;
+
         for (let i = 0; i < width * height; i++) {
             const v = edge[i];
-            imageData.data[i * 4] = v;
-            imageData.data[i * 4 + 1] = v;
-            imageData.data[i * 4 + 2] = v;
-            imageData.data[i * 4 + 3] = 255;
+            const idx = i * 4;
+            data[idx] = v;
+            data[idx + 1] = v;
+            data[idx + 2] = v;
+            data[idx + 3] = 255;
         }
+
         return imageData;
     },
 
     /**
      * Apply threshold to channel
+     * @param {Uint8Array} channel
+     * @param {number} threshold
+     * @param {boolean} invert - true for dark background
      */
     applyThreshold(channel, threshold, invert = false) {
         const result = new Uint8Array(channel.length);
-        
+
         for (let i = 0; i < channel.length; i++) {
             if (invert) {
+                // Dark background: low values = foreground
                 result[i] = channel[i] <= threshold ? 255 : 0;
             } else {
+                // Light background: high values = foreground
                 result[i] = channel[i] >= threshold ? 255 : 0;
             }
         }
-        
+
         return result;
     },
 
     /**
-     * Create binary mask from threshold
+     * Create binary mask
      */
     createBinaryMask(channel, threshold, darkBackground) {
         return this.applyThreshold(channel, threshold, darkBackground);
     },
 
     /**
-     * Calculate histogram for a channel
+     * Calculate histogram
      */
     calculateHistogram(channel) {
         const histogram = new Array(256).fill(0);
-        
         for (let i = 0; i < channel.length; i++) {
             histogram[channel[i]]++;
         }
-        
         return histogram;
     },
 
@@ -152,13 +169,13 @@ const Detection = {
         let min = 255;
         let max = 0;
         let sum = 0;
-        
+
         for (let i = 0; i < channel.length; i++) {
             if (channel[i] < min) min = channel[i];
             if (channel[i] > max) max = channel[i];
             sum += channel[i];
         }
-        
+
         return {
             min,
             max,
@@ -172,11 +189,9 @@ const Detection = {
      */
     calculateStdDev(channel, mean) {
         let sumSquaredDiff = 0;
-        
         for (let i = 0; i < channel.length; i++) {
             sumSquaredDiff += Math.pow(channel[i] - mean, 2);
         }
-        
         return Math.sqrt(sumSquaredDiff / channel.length);
     },
 
@@ -184,20 +199,16 @@ const Detection = {
      * Calculate contrast ratio for each channel
      */
     calculateContrastRatio(rgbChannels) {
-        const results = {
-            red: { contrast: 0, stats: null },
-            green: { contrast: 0, stats: null },
-            blue: { contrast: 0, stats: null }
-        };
+        const results = {};
 
         for (const channel of ['red', 'green', 'blue']) {
-            const stats = this.getChannelStats(rgbChannels[channel + 'Channel']);
-            const stdDev = this.calculateStdDev(rgbChannels[channel + 'Channel'], stats.mean);
-            
+            const channelData = rgbChannels[channel + 'Channel'];
+            const stats = this.getChannelStats(channelData);
+            const stdDev = this.calculateStdDev(channelData, stats.mean);
+
             results[channel] = {
                 contrast: stdDev,
-                stats: stats,
-                stdDev: stdDev
+                stats: stats
             };
         }
 
@@ -209,5 +220,5 @@ const Detection = {
     }
 };
 
-// Export for use in other modules
+// Export
 window.Detection = Detection;
