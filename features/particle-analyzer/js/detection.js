@@ -9,25 +9,33 @@ const Detection = {
      * @param {ImageData} imageData
      * @returns {Object} { redChannel, greenChannel, blueChannel, width, height }
      */
-    extractRGBChannels(imageData) {
-        const width = imageData.width;
-        const height = imageData.height;
-        const data = imageData.data;
-        const len = width * height;
+    extractRGBChannels: function(imageData) {
+    var width = imageData.width;
+    var height = imageData.height;
+    var data = imageData.data;
+    var len = width * height;
 
-        const redChannel = new Uint8Array(len);
-        const greenChannel = new Uint8Array(len);
-        const blueChannel = new Uint8Array(len);
+    var redChannel = new Uint8Array(len);
+    var greenChannel = new Uint8Array(len);
+    var blueChannel = new Uint8Array(len);
 
-        for (let i = 0; i < len; i++) {
-            const idx = i * 4;
-            redChannel[i] = data[idx];
-            greenChannel[i] = data[idx + 1];
-            blueChannel[i] = data[idx + 2];
-        }
+    for (var i = 0; i < len; i++) {
+        var idx = i * 4;
+        redChannel[i] = data[idx];
+        greenChannel[i] = data[idx + 1];
+        blueChannel[i] = data[idx + 2];
+    }
 
-        return { redChannel, greenChannel, blueChannel, width, height };
-    },
+    // ✅ Ganti nama key jadi: red, green, blue (tanpa 'Channel')
+    return { 
+        red: redChannel, 
+        green: greenChannel, 
+        blue: blueChannel, 
+        width: width, 
+        height: height 
+    };
+},
+
 
     /**
      * Convert ImageData to Grayscale Uint8Array
