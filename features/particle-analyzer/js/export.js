@@ -45,14 +45,13 @@ const Export = {
         exportCanvas.height = imageHeight;
         const ctx = exportCanvas.getContext('2d');
         
-        // Draw original image
-        ctx.drawImage(canvas, 0, 0);
+        // Get original image from ZoomPan
+        if (ZoomPan.image) {
+            ctx.drawImage(ZoomPan.image, 0, 0);
+        }
         
         // Draw particle overlay
-        ctx.save();
-        // Adjust for any offset/scale if needed
-        ZoomPan.drawParticleOverlayOnContext(ctx, particles);
-        ctx.restore();
+        this.drawParticleOverlayOnContext(ctx, particles, imageWidth, imageHeight);
         
         // Convert to blob and download
         exportCanvas.toBlob(blob => {
@@ -66,6 +65,53 @@ const Export = {
     },
 
     /**
+     * Draw particle overlay on context
+     */
+    drawParticleOverlayOnContext(ctx, particles, width, height) {
+        particles.forEach(particle => {
+            const { centroid, number, size } = particle;
+            const x = centroid.x;
+            const y = centroid.y;
+            
+            // Calculate radius
+            const radius = Math.sqrt(size / Math.PI);
+            
+            // Draw bounding circle
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw filled circle
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.15)';
+            ctx.fill();
+            
+            // Calculate label position
+            const labelY = y - radius - 18;
+            const labelRadius = 12;
+            
+            // Draw label background
+            ctx.beginPath();
+            ctx.arc(x, labelY, labelRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 40, 60, 0.95)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.8)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            // Draw number
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(number.toString(), x, labelY);
+        });
+    },
+
+    /**
      * Download file helper
      */
     downloadFile(content, filename, mimeType) {
@@ -76,34 +122,6 @@ const Export = {
         link.download = filename;
         link.click();
         URL.revokeObjectURL(url);
-    },
-
-    /**
-     * Generate summary report
-     */
-    generateSummaryReport(data) {
-        const { particles, totalParticles, totalArea, imageWidth, imageHeight } = data;
-        
-        // Calculate statistics
-        const sizes = particles.map(p => p.size);
-        const circularities = particles.map(p => p.circularity);
-        
-        const avgSize = sizes.length > 0 ? sizes.reduce((a, b) => a + b, 0) / sizes.length : 0;
-        const minSize = Math.min(...sizes);
-        const maxSize = Math.max(...sizes);
-        
-        const avgCirc = circularities.length > 0 ? circularities.reduce((a, b) => a + b, 0) / circularities.length : 0;
-        
-        const coveragePercent = ((totalArea / (imageWidth * imageHeight)) * 100).toFixed(2);
-        
-        return {
-            totalParticles,
-            totalArea,
-            imageArea: imageWidth * imageHeight,
-            coveragePercent,
-            sizeStats: { avg: avgSize, min: minSize, max: maxSize },
-            circularityStats: { avg: avgCirc }
-        };
     }
 };
 
