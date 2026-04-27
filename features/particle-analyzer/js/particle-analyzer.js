@@ -5,8 +5,8 @@
 
 // ==================== STATE ====================
 var state = {
-    image: null,           // Original HTMLImageElement
-    imageData: null,       // Original ImageData
+    image: null,
+    imageData: null,
     width: 0,
     height: 0,
     channel: 'red',
@@ -19,77 +19,60 @@ var state = {
 };
 
 // ==================== DOM ELEMENTS ====================
-var elements = {
-    canvas: null,
-    ctx: null,
-    previewCanvas: null,
-    previewCtx: null,
-    fileInput: null,
-    uploadBox: null,
-    analyzeBtn: null,
-    exportCsvBtn: null,
-    exportPngBtn: null,
-    thresholdSlider: null,
-    minSizeSlider: null,
-    maxSizeSlider: null,
-    invertCheck: null,
-    channelBtns: null
-};
+var el = {};
 
-// ==================== INITIALIZATION ====================
+// ==================== INIT ====================
 function init() {
     // Get elements
-    elements.canvas = document.getElementById('mainCanvas');
-    elements.ctx = elements.canvas.getContext('2d');
-    elements.previewCanvas = document.getElementById('previewCanvas');
-    elements.previewCtx = elements.previewCanvas.getContext('2d');
-    elements.fileInput = document.getElementById('fileInput');
-    elements.uploadBox = document.getElementById('uploadBox');
-    elements.analyzeBtn = document.getElementById('analyzeBtn');
-    elements.exportCsvBtn = document.getElementById('exportCsvBtn');
-    elements.exportPngBtn = document.getElementById('exportPngBtn');
-    elements.thresholdSlider = document.getElementById('thresholdSlider');
-    elements.minSizeSlider = document.getElementById('minSizeSlider');
-    elements.maxSizeSlider = document.getElementById('maxSizeSlider');
-    elements.invertCheck = document.getElementById('invertCheck');
-    elements.channelBtns = document.querySelectorAll('.channel-btn');
+    el.canvas = document.getElementById('mainCanvas');
+    el.ctx = el.canvas.getContext('2d');
+    el.previewCanvas = document.getElementById('previewCanvas');
+    el.previewCtx = el.previewCanvas.getContext('2d');
+    el.fileInput = document.getElementById('fileInput');
+    el.uploadBox = document.getElementById('uploadBox');
+    el.analyzeBtn = document.getElementById('analyzeBtn');
+    el.exportCsvBtn = document.getElementById('exportCsvBtn');
+    el.exportPngBtn = document.getElementById('exportPngBtn');
+    el.thresholdSlider = document.getElementById('thresholdSlider');
+    el.minSizeSlider = document.getElementById('minSizeSlider');
+    el.maxSizeSlider = document.getElementById('maxSizeSlider');
+    el.invertCheck = document.getElementById('invertCheck');
 
-    // Bind events
     bindEvents();
-    
-    console.log('✅ Particle Analyzer initialized');
+    console.log('✅ Particle Analyzer ready');
 }
 
 function bindEvents() {
     // File upload
-    elements.fileInput.addEventListener('change', handleFileUpload);
-    elements.uploadBox.addEventListener('click', function() {
-        elements.fileInput.click();
+    el.fileInput.addEventListener('change', handleFileUpload);
+    el.uploadBox.addEventListener('click', function() {
+        el.fileInput.click();
     });
     
     // Drag and drop
-    elements.uploadBox.addEventListener('dragover', function(e) {
+    el.uploadBox.addEventListener('dragover', function(e) {
         e.preventDefault();
-        elements.uploadBox.style.background = 'rgba(56, 189, 248, 0.2)';
+        el.uploadBox.classList.add('dragover');
     });
     
-    elements.uploadBox.addEventListener('dragleave', function() {
-        elements.uploadBox.style.background = '';
+    el.uploadBox.addEventListener('dragleave', function() {
+        el.uploadBox.classList.remove('dragover');
     });
     
-    elements.uploadBox.addEventListener('drop', function(e) {
+    el.uploadBox.addEventListener('drop', function(e) {
         e.preventDefault();
-        elements.uploadBox.style.background = '';
+        el.uploadBox.classList.remove('dragover');
         if (e.dataTransfer.files.length > 0) {
-            elements.fileInput.files = e.dataTransfer.files;
+            el.fileInput.files = e.dataTransfer.files;
             handleFileUpload();
         }
     });
     
     // Channel buttons
-    elements.channelBtns.forEach(function(btn) {
+    var channelBtns = document.querySelectorAll('.channel-btn');
+    channelBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
-            elements.channelBtns.forEach(function(b) { b.classList.remove('active'); });
+            channelBtns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
             state.channel = btn.dataset.channel;
             document.getElementById('channelValue').textContent = btn.textContent.replace(/[🔴🟢🔵⚪]/g, '').trim();
@@ -99,7 +82,7 @@ function bindEvents() {
     });
     
     // Threshold slider
-    elements.thresholdSlider.addEventListener('input', function() {
+    el.thresholdSlider.addEventListener('input', function() {
         state.threshold = parseInt(this.value);
         document.getElementById('thresholdValue').textContent = state.threshold;
         updatePreview();
@@ -107,36 +90,36 @@ function bindEvents() {
     });
     
     // Invert checkbox
-    elements.invertCheck.addEventListener('change', function() {
+    el.invertCheck.addEventListener('change', function() {
         state.invert = this.checked;
         updatePreview();
         if (state.analyzed) runAnalysis();
     });
     
-    // Size sliders
-    elements.minSizeSlider.addEventListener('input', function() {
+       // Size sliders
+    el.minSizeSlider.addEventListener('input', function() {
         state.minSize = parseInt(this.value);
         document.getElementById('minSizeValue').textContent = state.minSize;
         if (state.analyzed) runAnalysis();
     });
     
-    elements.maxSizeSlider.addEventListener('input', function() {
+    el.maxSizeSlider.addEventListener('input', function() {
         state.maxSize = parseInt(this.value);
         document.getElementById('maxSizeValue').textContent = state.maxSize;
         if (state.analyzed) runAnalysis();
     });
     
     // Analyze button
-    elements.analyzeBtn.addEventListener('click', runAnalysis);
+    el.analyzeBtn.addEventListener('click', runAnalysis);
     
     // Export buttons
-    elements.exportCsvBtn.addEventListener('click', exportCSV);
-    elements.exportPngBtn.addEventListener('click', exportPNG);
+    el.exportCsvBtn.addEventListener('click', exportCSV);
+    el.exportPngBtn.addEventListener('click', exportPNG);
 }
 
 // ==================== FILE HANDLING ====================
 function handleFileUpload() {
-    var file = elements.fileInput.files[0];
+    var file = el.fileInput.files[0];
     if (!file) return;
     
     showToast('Loading image...');
@@ -151,28 +134,34 @@ function handleFileUpload() {
             state.height = img.height;
             
             // Set canvas size
-            elements.canvas.width = state.width;
-            elements.canvas.height = state.height;
+            el.canvas.width = state.width;
+            el.canvas.height = state.height;
             
             // Draw image
-            elements.ctx.drawImage(img, 0, 0);
+            el.ctx.drawImage(img, 0, 0);
             
             // Get image data
-            state.imageData = elements.ctx.getImageData(0, 0, state.width, state.height);
+            state.imageData = el.ctx.getImageData(0, 0, state.width, state.height);
             
             // Setup preview canvas
-            elements.previewCanvas.width = state.width;
-            elements.previewCanvas.height = state.height;
+            el.previewCanvas.width = state.width;
+            el.previewCanvas.height = state.height;
             
             // Update preview
             updatePreview();
             
-            // Enable buttons
-            elements.analyzeBtn.disabled = false;
+            // Enable analyze button
+            el.analyzeBtn.disabled = false;
             
-            // Reset state
+            // Reset analysis state
             state.analyzed = false;
             state.particles = [];
+            
+            // Hide previous results
+            document.getElementById('statsPanel').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            el.exportCsvBtn.disabled = true;
+            el.exportPngBtn.disabled = true;
             
             showToast('Image loaded! Click Analyze to detect particles.');
         };
@@ -184,70 +173,40 @@ function handleFileUpload() {
     reader.readAsDataURL(file);
 }
 
-// ==================== IMAGE PROCESSING ====================
+// ==================== PREVIEW ====================
 function updatePreview() {
     if (!state.imageData) return;
-    
-    var channel = state.channel;
-    var threshold = state.threshold;
-    var invert = state.invert;
     
     var data = state.imageData.data;
     var width = state.width;
     var height = state.height;
     
     // Create output image
-    var output = elements.previewCtx.createImageData(width, height);
+    var output = el.previewCtx.createImageData(width, height);
     var outData = output.data;
     
-    // Extract selected channel
-    var channelData = new Uint8Array(width * height);
-    
-    for (var i = 0; i < width * height; i++) {
-        var idx = i
-function updatePreview() {
-    if (!state.imageData) return;
-    
-    var channel = state.channel;
-    var threshold = state.threshold;
-    var invert = state.invert;
-    
-    var data = state.imageData.data;
-    var width = state.width;
-    var height = state.height;
-    
-    // Create output image
-    var output = elements.previewCtx.createImageData(width, height);
-    var outData = output.data;
-    
-    // Extract selected channel
-    var channelData = new Uint8Array(width * height);
-    
-    for (var i = 0; i < width * height; i++) {
-        var idx = i * 4;
-        if (channel === 'red') {
-            channelData[i] = data[idx];
-        } else if (channel === 'green') {
-            channelData[i] = data[idx + 1];
-        } else if (channel === 'blue') {
-            channelData[i] = data[idx + 2];
-        } else {
-            // Gray - convert RGB to grayscale
-            channelData[i] = Math.round(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
-        }
-    }
-    
-    // Apply threshold
+    // Extract selected channel and apply threshold
     for (var i = 0; i < width * height; i++) {
         var idx = i * 4;
         var value;
         
-        if (invert) {
-            // Dark background: low values = foreground
-            value = channelData[i] <= threshold ? 255 : 0;
+        // Get channel value
+        if (state.channel === 'red') {
+            value = data[idx];
+        } else if (state.channel === 'green') {
+            value = data[idx + 1];
+        } else if (state.channel === 'blue') {
+            value = data[idx + 2];
         } else {
-            // Light background: high values = foreground
-            value = channelData[i] >= threshold ? 255 : 0;
+            // Gray
+            value = Math.round(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
+        }
+        
+        // Apply threshold
+        if (state.invert) {
+            value = value <= state.threshold ? 255 : 0;
+        } else {
+            value = value >= state.threshold ? 255 : 0;
         }
         
         outData[idx] = value;
@@ -256,7 +215,7 @@ function updatePreview() {
         outData[idx + 3] = 255;
     }
     
-    elements.previewCtx.putImageData(output, 0, 0);
+    el.previewCtx.putImageData(output, 0, 0);
     
     // Update label
     var labels = {
@@ -265,10 +224,10 @@ function updatePreview() {
         'blue': 'Blue Channel',
         'gray': 'Grayscale'
     };
-    document.getElementById('previewLabel').textContent = labels[channel] + ' (Threshold: ' + threshold + ')';
+    document.getElementById('previewLabel').textContent = labels[state.channel];
 }
 
-// ==================== PARTICLE ANALYSIS ====================
+// ==================== ANALYSIS ====================
 function runAnalysis() {
     if (!state.imageData) return;
     
@@ -277,66 +236,56 @@ function runAnalysis() {
     var data = state.imageData.data;
     var width = state.width;
     var height = state.height;
-    var threshold = state.threshold;
-    var invert = state.invert;
-    var minSize = state.minSize;
-    var maxSize = state.maxSize;
     
-    // Step 1: Extract selected channel
-    var channelData = new Uint8Array(width * height);
-    
-    for (var i = 0; i < width * height; i++) {
-        var idx = i * 4;
-        if (state.channel === 'red') {
-            channelData[i] = data[idx];
-        } else if (state.channel === 'green') {
-            channelData[i] = data[idx + 1];
-        } else if (state.channel === 'blue') {
-            channelData[i] = data[idx + 2];
-        } else {
-            channelData[i] = Math.round(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
-        }
-    }
-    
-    // Step 2: Create binary mask
+    // Step 1: Create binary mask from selected channel
     var binaryMask = new Uint8Array(width * height);
     
     for (var i = 0; i < width * height; i++) {
-        if (invert) {
-            binaryMask[i] = channelData[i] <= threshold ? 1 : 0;
+        var idx = i * 4;
+        var value;
+        
+        if (state.channel === 'red') {
+            value = data[idx];
+        } else if (state.channel === 'green') {
+            value = data[idx + 1];
+        } else if (state.channel === 'blue') {
+            value = data[idx + 2];
         } else {
-            binaryMask[i] = channelData[i] >= threshold ? 1 : 0;
+            value = Math.round(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
+        }
+        
+        if (state.invert) {
+            binaryMask[i] = value <= state.threshold ? 1 : 0;
+        } else {
+            binaryMask[i] = value >= state.threshold ? 1 : 0;
         }
     }
     
-    // Step 3: Find connected particles using flood fill
+    // Step 2: Find connected particles
     var visited = new Uint8Array(width * height);
     var particles = [];
     
     for (var i = 0; i < width * height; i++) {
-        // Skip if already visited or background
         if (visited[i] === 1 || binaryMask[i] === 0) continue;
         
-        // Found a new particle - flood fill
         var pixelCoords = floodFill(i, binaryMask, visited, width, height);
         
-        if (pixelCoords.length >= minSize && pixelCoords.length <= maxSize) {
-            var particle = calculateParticleProperties(pixelCoords, data, width, height);
+        if (pixelCoords.length >= state.minSize && pixelCoords.length <= state.maxSize) {
+            var particle = calculateProperties(pixelCoords, data, width, height);
             particles.push(particle);
         }
     }
     
-    // Step 4: Sort by size (largest first)
+    // Step 3: Sort by size
     particles.sort(function(a, b) {
         return b.size - a.size;
     });
     
-    // Step 5: Assign numbers
+    // Step 4: Assign numbers
     for (var i = 0; i < particles.length; i++) {
         particles[i].number = i + 1;
     }
     
-    // Store results
     state.particles = particles;
     state.analyzed = true;
     
@@ -345,9 +294,8 @@ function runAnalysis() {
     drawOverlay();
     updateResultsTable();
     
-    // Enable export buttons
-    elements.exportCsvBtn.disabled = false;
-    elements.exportPngBtn.disabled = false;
+    el.exportCsvBtn.disabled = false;
+    el.exportPngBtn.disabled = false;
     
     showToast('Found ' + particles.length + ' particles!');
 }
@@ -358,14 +306,6 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
     var queue = [startIdx];
     visited[startIdx] = 1;
     
-    // 4-connectivity neighbors
-    var neighbors = [
-        [-1, 0],  // left
-        [1, 0],   // right
-        [0, -1],  // top
-        [0, 1]    // bottom
-    ];
-    
     while (queue.length > 0) {
         var current = queue.shift();
         var x = current % width;
@@ -373,12 +313,13 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
         
         pixels.push({ x: x, y: y, idx: current });
         
-        // Check 4 neighbors
+        // 4-connectivity
+        var neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        
         for (var n = 0; n < neighbors.length; n++) {
             var nx = x + neighbors[n][0];
             var ny = y + neighbors[n][1];
             
-            // Bounds check
             if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                 var nIdx = ny * width + nx;
                 if (visited[nIdx] === 0 && binaryMask[nIdx] === 1) {
@@ -395,75 +336,51 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
     return pixels;
 }
 
-// ==================== CALCULATE PARTICLE PROPERTIES ====================
-function calculateParticleProperties(pixels, imageData, width, height) {
+// ==================== CALCULATE PROPERTIES ====================
+function calculateProperties(pixels, imageData, width, height) {
     var size = pixels.length;
     
     if (size === 0) {
-        return {
-            size: 0,
-            centroid: { x: 0, y: 0 },
-            perimeter: 0,
-            circularity: 0,
-            meanR: 0,
-            meanG: 0,
-            meanB: 0
-        };
+        return { size: 0, centroid: { x: 0, y: 0 }, perimeter: 0, circularity: 0, meanR: 0, meanG: 0, meanB: 0 };
     }
     
     var data = imageData.data;
-    
-    // Calculate centroid and mean RGB
     var sumX = 0, sumY = 0;
     var sumR = 0, sumG = 0, sumB = 0;
     
     for (var i = 0; i < size; i++) {
-        var pixel = pixels[i];
-        sumX += pixel.x;
-        sumY += pixel.y;
-        sumR += data[pixel.idx];
-        sumG += data[pixel.idx + 1];
-        sumB += data[pixel.idx + 2];
+        var idx = pixels[i].idx;
+        sumX += pixels[i].x;
+        sumY += pixels[i].y;
+        sumR += data[idx];
+        sumG += data[idx + 1];
+        sumB += data[idx + 2];
     }
     
-    var centroid = {
-        x: sumX / size,
-        y: sumY / size
-    };
-    
-    var meanR = sumR / size;
-    var meanG = sumG / size;
-    var meanB = sumB / size;
-    
-    // Calculate perimeter
+    var centroid = { x: sumX / size, y: sumY / size };
     var perimeter = calculatePerimeter(pixels, width, height);
-    
-    // Calculate circularity: 4π × Area / Perimeter²
-    var circularity = perimeter > 0 ? (4 * Math.PI * size) / (perimeter * perimeter) : 0;
-    circularity = Math.min(circularity, 1);
+    var circularity = perimeter > 0 ? Math.min((4 * Math.PI * size) / (perimeter * perimeter), 1) : 0;
     
     return {
         size: size,
         centroid: centroid,
         perimeter: perimeter,
         circularity: circularity,
-        meanR: meanR,
-        meanG: meanG,
-        meanB: meanB
+        meanR: sumR / size,
+        meanG: sumG / size,
+        meanB: sumB / size
     };
 }
 
-// ==================== CALCULATE PERIMETER ====================
 function calculatePerimeter(pixels, width, height) {
     if (pixels.length === 0) return 0;
     
-    // Create pixel lookup
     var pixelSet = {};
     for (var i = 0; i < pixels.length; i++) {
         pixelSet[pixels[i].idx] = true;
     }
     
-    var boundaryCount = 0;
+    var count = 0;
     var neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     
     for (var i = 0; i < pixels.length; i++) {
@@ -474,28 +391,25 @@ function calculatePerimeter(pixels, width, height) {
             var ny = p.y + neighbors[n][1];
             var nIdx = ny * width + nx;
             
-            // If neighbor is outside particle or background
             if (nx < 0 || nx >= width || ny < 0 || ny >= height || !pixelSet[nIdx]) {
-                boundaryCount++;
+                count++;
             }
         }
     }
     
-    return boundaryCount;
+    return count;
 }
 
 // ==================== UPDATE UI ====================
 function updateStats() {
-    var particles = state.particles;
     var totalArea = 0;
-    
-    for (var i = 0; i < particles.length; i++) {
-        totalArea += particles[i].size;
+    for (var i = 0; i < state.particles.length; i++) {
+        totalArea += state.particles[i].size;
     }
     
     var coverage = (totalArea / (state.width * state.height) * 100).toFixed(2);
     
-    document.getElementById('totalParticles').textContent = particles.length;
+    document.getElementById('totalParticles').textContent = state.particles.length;
     document.getElementById('totalArea').textContent = formatNumber(totalArea) + ' px²';
     document.getElementById('coverage').textContent = coverage + '%';
     document.getElementById('statsPanel').style.display = 'block';
@@ -505,78 +419,74 @@ function updateResultsTable() {
     var tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
     
-    var particles = state.particles;
-    var maxRows = 100; // Limit display
-    
-    for (var i = 0; i < Math.min(particles.length, maxRows); i++) {
-        var p = particles[i];
-        var row = document.createElement('tr');
-        row.innerHTML = 
+    var maxRows = 100;
+    for (var i = 0; i < Math.min(state.particles.length, maxRows); i++) {
+        var p = state.particles[i];
+        var tr = document.createElement('tr');
+        tr.innerHTML = 
             '<td>#' + p.number + '</td>' +
             '<td>' + p.size + '</td>' +
             '<td>' + p.meanR.toFixed(1) + '</td>' +
             '<td>' + p.meanG.toFixed(1) + '</td>' +
             '<td>' + p.meanB.toFixed(1) + '</td>' +
             '<td>' + p.circularity.toFixed(3) + '</td>';
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
     }
     
-    if (particles.length > maxRows) {
-        var moreRow = document.createElement('tr');
-        moreRow.innerHTML = '<td colspan="6" style="text-align: center; color: #64748b;">... and ' + (particles.length - maxRows) + ' more</td>';
-        tbody.appendChild(moreRow);
+    if (state.particles.length > maxRows) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" style="text-align: center; color: #64748b;">... and ' + (state.particles.length - maxRows) + ' more</td>';
+        tbody.appendChild(tr);
     }
     
-    document.getElementById('tableContainer').style.display = 'block';
+    document.getElementById('resultsSection').style.display = 'block';
 }
 
 // ==================== DRAW OVERLAY ====================
 function drawOverlay() {
     if (!state.image) return;
     
-    var particles = state.particles;
-    
-    // Clear and redraw original image
-    elements.ctx.clearRect(0, 0, state.width, state.height);
-    elements.ctx.drawImage(state.image, 0, 0);
+    // Redraw original image
+    el.ctx.clearRect(0, 0, state.width, state.height);
+    el.ctx.drawImage(state.image, 0, 0);
     
     // Draw particles
-    for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
+    for (var i = 0; i < state.particles.length; i++) {
+        var p = state.particles[i];
         var x = p.centroid.x;
         var y = p.centroid.y;
         var radius = Math.sqrt(p.size / Math.PI);
         
-        // Draw bounding circle
-        elements.ctx.beginPath();
-        elements.ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
-        elements.ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
-        elements.ctx.lineWidth = 2;
-        elements.ctx.stroke();
+        // Circle outline
+        el.ctx.beginPath();
+        el.ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
+        el.ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+        el.ctx.lineWidth = 2;
+        el.ctx.stroke();
         
-        // Draw filled circle
-        elements.ctx.beginPath();
-        elements.ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
-        elements.ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
-        elements.ctx.fill();
+        // Circle fill
+        el.ctx.beginPath();
+        el.ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
+        el.ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        el.ctx.fill();
         
-        // Draw number label
-        var labelY = y - radius - 10;
-        if (labelY < 15) labelY = y + radius + 15;
+        // Number label
+        var labelY = y - radius - 8;
+        if (labelY < 12) labelY = y + radius + 12;
         
-        elements.ctx.beginPath();
-        elements.ctx.arc(x, labelY, 8, 0, Math.PI * 2);
-        elements.ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-        elements.ctx.fill();
-        elements.ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
-        elements.ctx.lineWidth = 1;
-        elements.ctx.stroke();
+        el.ctx.beginPath();
+        el.ctx.arc(x, labelY, 7, 0, Math.PI * 2);
+        el.ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        el.ctx.fill();
+        el.ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+        el.ctx.lineWidth = 1;
+        el.ctx.stroke();
         
-        elements.ctx.fillStyle = '#38bdf8';
-        elements.ctx.font = 'bold 10px Inter, sans-serif';
-        elements.ctx.textAlign = 'center';
-        elements.ctx.textBaseline = 'middle';
-        elements.ctx.fillText(p.number.toString(), x, labelY);
+        el.ctx.fillStyle = '#38bdf8';
+        el.ctx.font = 'bold 9px Inter, sans-serif';
+        el.ctx.textAlign = 'center';
+        el.ctx.textBaseline = 'middle';
+        el.ctx.fillText(p.number.toString(), x, labelY);
     }
 }
 
@@ -584,14 +494,14 @@ function drawOverlay() {
 function exportCSV() {
     if (state.particles.length === 0) return;
     
-    var csv = 'AQUA INSIGHT - PARTICLE ANALYSIS REPORT\n';
-    csv += 'Generated: ' + new Date().toLocaleString() + '\n';
-    csv += 'Image Size: ' + state.width + ' x ' + state.height + '\n';
-    csv += 'Channel: ' + state.channel + '\n';
-    csv += 'Threshold: ' + state.threshold + '\n';
-    csv += 'Total Particles: ' + state.particles.length + '\n\n';
+    var csv = 'AQUA INSIGHT - PARTICLE ANALYSIS\n';
+    csv += 'Date,' + new Date().toLocaleString() + '\n';
+    csv += 'Image,' + state.width + 'x' + state.height + '\n';
+    csv += 'Channel,' + state.channel + '\n';
+    csv += 'Threshold,' + state.threshold + '\n';
+    csv += 'Total Particles,' + state.particles.length + '\n\n';
     
-    csv += 'No,Size (px²),Centroid X,Centroid Y,Mean R,Mean G,Mean B,Circularity\n';
+    csv += 'No,Size,Centroid X,Centroid Y,Mean R,Mean G,Mean B,Circularity\n';
     
     for (var i = 0; i < state.particles.length; i++) {
         var p = state.particles[i];
@@ -608,41 +518,36 @@ function exportCSV() {
 function exportPNG() {
     if (!state.image) return;
     
-    // Create export canvas
     var exportCanvas = document.createElement('canvas');
     exportCanvas.width = state.width;
     exportCanvas.height = state.height;
     var ctx = exportCanvas.getContext('2d');
     
-    // Draw original image
     ctx.drawImage(state.image, 0, 0);
     
-    // Draw particles overlay
+    // Draw overlay
     for (var i = 0; i < state.particles.length; i++) {
         var p = state.particles[i];
         var x = p.centroid.x;
         var y = p.centroid.y;
         var radius = Math.sqrt(p.size / Math.PI);
         
-        // Draw bounding circle
         ctx.beginPath();
         ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // Draw filled circle
         ctx.beginPath();
         ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
         ctx.fill();
         
-        // Draw number label
-        var labelY = y - radius - 10;
-        if (labelY < 15) labelY = y + radius + 15;
+        var labelY = y - radius - 8;
+        if (labelY < 12) labelY = y + radius + 12;
         
         ctx.beginPath();
-        ctx.arc(x, labelY, 8, 0, Math.PI * 2);
+        ctx.arc(x, labelY, 7, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
         ctx.fill();
         ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
@@ -650,13 +555,12 @@ function exportPNG() {
         ctx.stroke();
         
         ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 10px Inter, sans-serif';
+        ctx.font = 'bold 9px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(p.number.toString(), x, labelY);
     }
     
-    // Download
     exportCanvas.toBlob(function(blob) {
         var url = URL.createObjectURL(blob);
         var link = document.createElement('a');
@@ -696,4 +600,3 @@ function showToast(message) {
 
 // ==================== START ====================
 document.addEventListener('DOMContentLoaded', init);
-    
