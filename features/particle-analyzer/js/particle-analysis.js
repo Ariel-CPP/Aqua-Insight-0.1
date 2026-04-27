@@ -5,9 +5,9 @@
 
 const ParticleAnalysis = {
     /**
-     * Detect and analyze particles
+     * Detect and analyze particles (synchronous)
      */
-    async analyzeParticles(imageData, options) {
+    analyzeParticles(imageData, options) {
         const {
             channel,
             threshold,
@@ -18,15 +18,12 @@ const ParticleAnalysis = {
             circularityMax
         } = options;
 
-        // Show progress
-        UI.showLoading('Analyzing particles...');
-        UI.updateProgress(10, 100, 'Extracting RGB channels...');
+        const width = imageData.width;
+        const height = imageData.height;
 
         // Extract RGB channels
         const rgbChannels = Detection.extractRGBChannels(imageData);
         const selectedChannel = rgbChannels[channel + 'Channel'];
-
-        UI.updateProgress(30, 100, 'Applying threshold...');
 
         // Apply threshold
         const binaryMask = Detection.createBinaryMask(
@@ -35,17 +32,13 @@ const ParticleAnalysis = {
             darkBackground
         );
 
-        UI.updateProgress(50, 100, 'Finding connected regions...');
-
         // Find connected components (particles)
-        const particles = await this.findConnectedParticles(
+        const particles = this.findConnectedParticles(
             binaryMask,
             rgbChannels,
-            imageData.width,
-            imageData.height
+            width,
+            height
         );
-
-        UI.updateProgress(70, 100, 'Filtering particles...');
 
         // Filter by size and circularity
         const filteredParticles = this.filterParticles(
@@ -56,8 +49,6 @@ const ParticleAnalysis = {
             circularityMax
         );
 
-        UI.updateProgress(90, 100, 'Finalizing results...');
-
         // Sort by size (largest first)
         filteredParticles.sort((a, b) => b.size - a.size);
 
@@ -66,37 +57,25 @@ const ParticleAnalysis = {
             p.number = idx + 1;
         });
 
-        UI.updateProgress(100, 100, 'Complete!');
-        
         return {
             particles: filteredParticles,
             totalParticles: filteredParticles.length,
             totalArea: filteredParticles.reduce((sum, p) => sum + p.size, 0),
-            imageWidth: imageData.width,
-            imageHeight: imageData.height
+            imageWidth: width,
+            imageHeight: height
         };
     },
 
     /**
-     * Find connected particles using flood fill (BFS)
+     * Find connected particles using flood fill (BFS) - Synchronous
      */
-    async findConnectedParticles(binaryMask, rgbChannels, width, height) {
+    findConnectedParticles(binaryMask, rgbChannels, width, height) {
         const visited = new Uint8Array(width * height);
         const particles = [];
         const pixelCount = width * height;
 
-        // Process in chunks for better performance
-        const chunkSize = Math.floor(pixelCount / 100);
-        let processed = 0;
-
         for (let i = 0; i < pixelCount; i++) {
             if (visited[i] === 1 || binaryMask[i] === 0) {
-                visited[i] = 1;
-                processed++;
-                if (processed % chunkSize === 0) {
-                    UI.updateProgress(50 + Math.floor((processed / pixelCount) * 20), 100, 'Scanning particles...');
-                    await this.yieldToMain();
-                }
                 continue;
             }
 
@@ -115,12 +94,6 @@ const ParticleAnalysis = {
                     particles.push(particle);
                 }
             }
-
-            processed++;
-            if (processed % chunkSize === 0) {
-                UI.updateProgress(50 + Math.floor((processed / pixelCount) * 20), 100, 'Scanning particles...');
-                await this.yieldToMain();
-            }
         }
 
         return particles;
@@ -134,16 +107,12 @@ const ParticleAnalysis = {
         const queue = [startIdx];
         visited[startIdx] = 1;
 
-        // 8-connectivity (diagonal neighbors included)
+        // 4-connectivity untuk stabilitas
         const neighbors = [
-            -1, -1,  // top-left
-            0, -1,   // top
-            1, -1,   // top-right
             -1, 0,   // left
             1, 0,    // right
-            -1, 1,   // bottom-left
-            0, 1,    // bottom
-            1, 1     // bottom-right
+            0, -1,   // top
+            0, 1     // bottom
         ];
 
         while (queue.length > 0) {
@@ -157,10 +126,10 @@ const ParticleAnalysis = {
             for (let n = 0; n < neighbors.length; n += 2) {
                 const nx = x + neighbors[n];
                 const ny = y + neighbors[n + 1];
-                const nIdx = ny * width + nx;
 
                 // Check bounds
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                    const nIdx = ny * width + nx;
                     if (visited[nIdx] === 0 && binaryMask[nIdx] > 0) {
                         visited[nIdx] = 1;
                         queue.push(nIdx);
@@ -168,8 +137,8 @@ const ParticleAnalysis = {
                 }
             }
 
-            // Safety limit to prevent infinite loops
-            if (pixels.length > 50000) break;
+            // Safety limit
+            if (pixels.length > 100000) break;
         }
 
         return pixels;
@@ -178,7 +147,7 @@ const ParticleAnalysis = {
     /**
      * Calculate particle properties
      */
-    calculateParticleProperties(pixels, rgbChannels, imageWidth, imageHeight) {
+    calculateParticleProperties(pixels, rgbChannels, width, height) {
         const size = pixels.length;
 
         if (size === 0) {
@@ -193,7 +162,8 @@ const ParticleAnalysis = {
         const greenChannel = rgbChannels.greenChannel;
         const blueChannel = rgbChannels.blueChannel;
 
-        for (const pixel of pixels) {
+        for (let i = 0; i < size; i++) {
+            const pixel = pixels[i];
             sumX += pixel.x;
             sumY += pixel.y;
 
@@ -213,7 +183,7 @@ const ParticleAnalysis = {
         const meanB = sumB / size;
 
         // Calculate perimeter (edge pixels)
-        const perimeter = this.calculatePerimeter(pixels, imageWidth, imageHeight);
+        const perimeter = this.calculatePerimeter(pixels, width, height);
 
         // Calculate circularity: 4π × Area / Perimeter²
         const circularity = perimeter > 0 ? (4 * Math.PI * size) / (perimeter * perimeter) : 0;
@@ -222,48 +192,45 @@ const ParticleAnalysis = {
             size,
             centroid,
             perimeter,
-            circularity: Math.min(circularity, 1), // Cap at 1
+            circularity: Math.min(circularity, 1),
             meanR,
             meanG,
-            meanB,
-            pixels // Store pixels for overlay
+            meanB
         };
     },
 
     /**
-     * Calculate perimeter using chain code approximation
+     * Calculate perimeter
      */
     calculatePerimeter(pixels, width, height) {
         if (pixels.length === 0) return 0;
 
-        // Create a set for quick lookup
-        const pixelSet = new Set(pixels.map(p => p.idx));
+        // Create pixel lookup set
+        const pixelSet = new Set();
+        for (let i = 0; i < pixels.length; i++) {
+            pixelSet.add(pixels[i].idx);
+        }
 
-        // Find boundary pixels
-        const boundaryPixels = pixels.filter(p => {
-            const neighbors = [
-                { dx: -1, dy: 0 },
-                { dx: 1, dy: 0 },
-                { dx: 0, dy: -1 },
-                { dx: 0, dy: 1 }
-            ];
+        // Find boundary pixels (4-connectivity)
+        let boundaryCount = 0;
+        const neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-            for (const n of neighbors) {
-                const nx = p.x + n.dx;
-                const ny = p.y + n.dy;
+        for (let i = 0; i < pixels.length; i++) {
+            const p = pixels[i];
+            
+            for (const [dx, dy] of neighbors) {
+                const nx = p.x + dx;
+                const ny = p.y + dy;
 
-                // If neighbor is outside the particle (or outside image)
+                // If neighbor is outside particle
                 if (nx < 0 || nx >= width || ny < 0 || ny >= height || !pixelSet.has(ny * width + nx)) {
-                    return true; // This is a boundary pixel
+                    boundaryCount++;
+                    break;
                 }
             }
-            return false;
-        });
+        }
 
-        // Calculate perimeter using approximation
-        // Each boundary pixel contributes approximately 1 to perimeter
-        // Corner pixels contribute more
-        return boundaryPixels.length;
+        return boundaryCount;
     },
 
     /**
@@ -275,22 +242,6 @@ const ParticleAnalysis = {
             const circOk = p.circularity >= circularityMin && p.circularity <= circularityMax;
             return sizeOk && circOk;
         });
-    },
-
-    /**
-     * Yield to main thread for UI updates
-     */
-    yieldToMain() {
-        return new Promise(resolve => {
-            setTimeout(resolve, 0);
-        });
-    },
-
-    /**
-     * Calculate coverage percentage
-     */
-    calculateCoverage(particleArea, totalArea) {
-        return (particleArea / totalArea) * 100;
     }
 };
 
