@@ -349,12 +349,13 @@ function calculateProperties(pixels, imageData, width, height) {
     var sumR = 0, sumG = 0, sumB = 0;
     
     for (var i = 0; i < size; i++) {
-        var idx = pixels[i].idx;
+        // ✅ FIX: Use idx * 4 because ImageData stores RGBA (4 bytes per pixel)
+        var idx = pixels[i].idx * 4;
         sumX += pixels[i].x;
         sumY += pixels[i].y;
-        sumR += data[idx];
-        sumG += data[idx + 1];
-        sumB += data[idx + 2];
+        sumR += data[idx];       // Red
+        sumG += data[idx + 1];   // Green
+        sumB += data[idx + 2];   // Blue
     }
     
     var centroid = { x: sumX / size, y: sumY / size };
