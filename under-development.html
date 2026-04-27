@@ -3,103 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under Development - Aqua Insight</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Under Development - Aqua Insight v0.1</title>
+    <link rel="stylesheet" href="css/under-dev.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="under-dev-page">
-    <!-- Header (sama persis dengan homepage) -->
+    <!-- Header (IDENTICAL dengan homepage) -->
     <header class="header">
         <div class="container">
-            <div class="logo">
-                <div class="logo-placeholder">
-                    <span>AI</span>
+            <div class="header-left">
+                <img src="images/logo.png" alt="Aqua Insight" class="logo-img">
+                <div class="system-info">
+                    <h1 class="system-name">Aqua Insight</h1>
+                    <span class="system-version">v0.1</span>
                 </div>
-                <span class="logo-text">Aqua Insight</span>
             </div>
-            <div class="header-info">
-                <span>Technology Division • Central Proteina Prima</span>
+            <div class="header-right">
+                <a href="index.html" class="back-btn">← Back to Dashboard</a>
             </div>
         </div>
     </header>
 
-    <!-- Under Development Hero -->
-    <section class="under-dev-hero">
+    <!-- Main Content -->
+    <main class="under-dev-main">
         <div class="container">
             <div class="under-dev-content">
-                <div class="under-dev-icon">🚧</div>
-                <h1 class="under-dev-title">Feature Under Development</h1>
-                <p class="under-dev-subtitle">
-                    This advanced aquaculture analysis tool is being developed by our 
-                    Technology Division team at Central Proteina Prima.
-                </p>
-                
+                <!-- Dynamic Feature Name -->
+                <div class="feature-header">
+                    <div class="under-dev-icon">🚧</div>
+                    <h1 id="featureTitle" class="under-dev-title">Feature Under Development</h1>
+                </div>
+
+                <div class="under-dev-subtitle">
+                    <p>This advanced aquaculture analysis tool is being developed by our</p>
+                    <p><strong>Technology Division, Central Proteina Prima</strong></p>
+                </div>
+
+                <!-- Progress Tracker -->
                 <div class="dev-progress">
-                    <div class="progress-item">
-                        <div class="progress-label">Design & Planning</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill design-fill"></div>
+                    <h3>Development Progress</h3>
+                    <div class="progress-container">
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Design & Planning</span>
+                                <span class="progress-percent">90%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill design-fill"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">Backend Development</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill backend-fill"></div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Backend Development</span>
+                                <span class="progress-percent">65%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill backend-fill"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">AI/ML Integration</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill ai-fill"></div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>AI/ML Integration</span>
+                                <span class="progress-percent">45%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ai-fill"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-label">Testing & Deployment</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill testing-fill"></div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Testing & Deployment</span>
+                                <span class="progress-percent">20%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill testing-fill"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Feature Preview -->
                 <div class="feature-preview">
-                    <h3>Coming Soon Features:</h3>
-                    <ul>
-                        <li>✅ High-resolution image processing</li>
-                        <li>✅ AI-powered analysis algorithms</li>
-                        <li>✅ Real-time data visualization</li>
-                        <li>✅ Exportable scientific reports</li>
-                        <li>✅ Multi-platform compatibility</li>
-                    </ul>
-                </div>
-
-                <div class="cta-section">
-                    <a href="index.html" class="btn-back">← Back to Dashboard</a>
-                    <div class="notify-section">
-                        <p>Want to be notified when ready?</p>
-                        <div class="notify-placeholder">
-                            <span>Email notification coming soon</span>
+                    <h3>🎯 Coming Soon Features</h3>
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <span class="preview-icon">🖼️</span>
+                            <span>High-resolution image processing</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-icon">🤖</span>
+                            <span>AI-powered analysis algorithms</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-icon">📊</span>
+                            <span>Real-time data visualization</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-icon">📄</span>
+                            <span>Exportable scientific reports</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-icon">📱</span>
+                            <span>Mobile & tablet compatibility</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="cta-section">
+                    <a href="index.html" class="btn-primary">← Back to Dashboard</a>
+                    <div class="notify-box">
+                        <h4>🔔 Get Notified</h4>
+                        <p>Enter your email to be notified when this feature is ready</p>
+                        <div class="notify-form">
+                            <input type="email" placeholder="your.email@company.com" disabled>
+                            <button class="notify-btn" disabled>Notify Me</button>
+                        </div>
+                        <p class="notify-info">* Email notifications coming soon in v0.2</p>
+                    </div>
+                </div>
+
+                <!-- Team Info -->
+                <div class="team-info">
+                    <h4>👥 Development Team</h4>
+                    <p>Technology Division - Central Proteina Prima</p>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Footer (sama persis dengan homepage) -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">
-                    <span>Aqua Insight</span>
-                </div>
                 <div class="footer-info">
-                    <p>© 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
-                    <p>Advanced Aquaculture Analytics Platform</p>
+                    <p>&copy; 2024 Technology Division, Central Proteina Prima. All rights reserved.</p>
+                    <p>Aqua Insight v0.1 - Advanced Aquaculture Analytics Platform</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script src="js/under-dev.js"></script>
 </body>
 </html>
