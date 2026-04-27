@@ -1,6 +1,6 @@
 /**
  * main.js - Main Application Controller
- * Aqua Insight - Particle Analyzer
+ * Aqua Insight v0.1 - Particle Analyzer
  */
 
 const App = {
@@ -26,11 +26,15 @@ const App = {
      * Initialize the application
      */
     init() {
+        console.log('🚀 Initializing Aqua Insight - Particle Analyzer');
+        
         this.bindEvents();
         this.initCanvas();
         this.bindSliders();
+        this.bindZoomControls();
+        this.bindDragDrop();
         
-        console.log('✅ Particle Analyzer initialized');
+        console.log('✅ Application initialized');
     },
 
     /**
@@ -43,7 +47,7 @@ const App = {
             imageInput.addEventListener('change', (e) => this.handleFileSelect(e));
         }
 
-        // File upload area click
+        // Upload area click
         const uploadArea = document.getElementById('fileUploadArea');
         if (uploadArea) {
             uploadArea.addEventListener('click', () => imageInput?.click());
@@ -52,6 +56,11 @@ const App = {
         // RGB channel buttons
         document.querySelectorAll('.rgb-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.selectChannel(e));
+        });
+
+        // Dark background checkbox
+        document.getElementById('darkBackground')?.addEventListener('change', (e) => {
+            this.settings.darkBackground = e.target.checked;
         });
 
         // Analyze button
@@ -66,12 +75,65 @@ const App = {
 
         // Back to dashboard
         document.getElementById('backToDashboard')?.addEventListener('click', () => {
-            window.location.href = '../index.html';
+            window.location.href = '../../index.html';
         });
 
-        // Dark background checkbox
-        document.getElementById('darkBackground')?.addEventListener('change', (e) => {
-            this.settings.darkBackground = e.target.checked;
+        // File list remove buttons (event delegation)
+        document.getElementById('fileList')?.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const filename = e.target.dataset.filename;
+                if (filename) this.removeImage(filename);
+            }
+        });
+
+        // Window resize
+        window.addEventListener('resize', Utils.debounce(() => {
+            if (this.currentImageData) {
+                ZoomPan.fitToView();
+            }
+        }, 200));
+    },
+
+    /**
+     * Bind zoom controls
+     */
+    bindZoomControls() {
+        document.getElementById('zoomIn')?.addEventListener('click', () => ZoomPan.zoomIn());
+        document.getElementById('zoomOut')?.addEventListener('click', () => ZoomPan.zoomOut());
+        document.getElementById('zoomFit')?.addEventListener('click', () => ZoomPan.fitToView());
+        document.getElementById('zoomReset')?.addEventListener('click', () => ZoomPan.resetZoom());
+    },
+
+    /**
+     * Bind drag and drop
+     */
+    bindDragDrop() {
+        const uploadArea = document.getElementById('fileUploadArea');
+        if (!uploadArea) return;
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const input = document.getElementById('imageInput');
+                if (input) {
+                    const dt = new DataTransfer();
+                    Array.from(files).forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                    this.handleFileSelect({ target: input });
+                }
+            }
         });
     },
 
@@ -81,22 +143,13 @@ const App = {
     initCanvas() {
         const canvas = document.getElementById('imageCanvas');
         if (canvas) {
-            // Set initial size
+            // Set canvas size
             const container = canvas.parentElement;
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
             
             // Initialize zoom/pan
             ZoomPan.init(canvas);
-            
-            // Handle resize
-            window.addEventListener('resize', () => {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                if (this.currentImageData) {
-                    ZoomPan.fitToView();
-                }
-            });
         }
     },
 
@@ -104,7 +157,7 @@ const App = {
      * Bind all sliders
      */
     bindSliders() {
-        // Threshold slider
+        // Threshold
         const thresholdSlider = document.getElementById('thresholdSlider');
         if (thresholdSlider) {
             thresholdSlider.addEventListener('input', (e) => {
@@ -113,7 +166,7 @@ const App = {
             });
         }
 
-        // Size min slider
+        // Size Min
         const sizeMinSlider = document.getElementById('sizeMinSlider');
         if (sizeMinSlider) {
             sizeMinSlider.addEventListener('input', (e) => {
@@ -122,7 +175,7 @@ const App = {
             });
         }
 
-        // Size max slider
+        // Size Max
         const sizeMaxSlider = document.getElementById('sizeMaxSlider');
         if (sizeMaxSlider) {
             sizeMaxSlider.addEventListener('input', (e) => {
@@ -131,21 +184,13 @@ const App = {
             });
         }
 
-        // Circularity min slider
+        // Circularity Min
         const circMinSlider = document.getElementById('circularityMinSlider');
         if (circMinSlider) {
             circMinSlider.addEventListener('input', (e) => {
-                this.settings.circularityMin = parseFloat(e.target.value);
-                document.getElementById('circularityMinValue').textContent = parseFloat(e.target.value).toFixed(2);
-            });
-        }
-
-        // Circularity max slider
-        const circMaxSlider = document.getElementById('circularityMaxSlider');
-        if (circMaxSlider) {
-            circMaxSlider.addEventListener('input', (e) => {
-                this.settings.circularityMax = parseFloat(e.target.value);
-                document.getElementById('circularityMaxValue').textContent = parseFloat(e.target.value).toFixed(2);
+                const value = parseInt(e.target.value) / 100;
+                this.settings.circularityMin = value;
+                document.getElementById('circularityMinValue').textContent = value.toFixed(2);
             });
         }
     },
@@ -163,44 +208,45 @@ const App = {
         const fileList = document.getElementById('fileList');
         fileList.innerHTML = '';
 
-        let loadPromises = files.map(file => this.loadImage(file));
-        
-        Promise.all(loadPromises).then(results => {
-            results.forEach((imageData, idx) => {
-                this.images.push({
-                    file: files[idx],
-                    imageData: imageData,
-                    name: files[idx].name
+        // Load all images
+        let loadedCount = 0;
+        const loadPromises = files.map(file => this.loadImage(file));
+
+        Promise.all(loadPromises)
+            .then(results => {
+                results.forEach((imageData, idx) => {
+                    if (imageData) {
+                        this.images.push({
+                            file: files[idx],
+                            imageData: imageData,
+                            name: files[idx].name
+                        });
+
+                        // Add to file list UI
+                        this.addFileItem(files[idx].name);
+                        loadedCount++;
+                    }
                 });
 
-                // Add to file list
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <span>📷 ${files[idx].name}</span>
-                    <button data-filename="${files[idx].name}">✕</button>
-                `;
-                fileList.appendChild(fileItem);
+                UI.hideLoading();
+
+                if (this.images.length > 0) {
+                    this.currentImageIndex = 0;
+                    this.loadCurrentImage();
+                    UI.showSuccess(`Loaded ${loadedCount} image(s)`);
+                } else {
+                    UI.showError('No valid images loaded');
+                }
+            })
+            .catch(err => {
+                UI.hideLoading();
+                UI.showError('Failed to load images: ' + err.message);
+                console.error('Load error:', err);
             });
-
-            // Render channel previews for first image
-            if (this.images.length > 0) {
-                renderChannelPreviews(this.images[0].imageData.imageData, this.selectedChannel);
-            }
-
-            UI.hideLoading();
-
-            if (this.images.length > 0) {
-                this.loadCurrentImage();
-            }
-        }).catch(err => {
-            UI.hideLoading();
-            UI.showError(`Failed to load images: ${err.message}`);
-        });
     },
 
     /**
-     * Load image from file
+     * Load single image file
      */
     loadImage(file) {
         return new Promise((resolve, reject) => {
@@ -209,21 +255,22 @@ const App = {
 
             reader.onload = (e) => {
                 img.onload = () => {
-                    // Create canvas to get image data
+                    // Create canvas to extract image data
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    
+
                     resolve({
-                        img,
+                        img: img,
                         imageData: ctx.getImageData(0, 0, img.width, img.height),
                         width: img.width,
                         height: img.height
                     });
                 };
-                img.onerror = () => reject(new Error('Failed to load image'));
+
+                img.onerror = () => reject(new Error('Failed to decode image'));
                 img.src = e.target.result;
             };
 
@@ -233,27 +280,53 @@ const App = {
     },
 
     /**
+     * Add file item to list
+     */
+    addFileItem(filename) {
+        const fileList = document.getElementById('fileList');
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <span>📷 ${filename}</span>
+            <button data-filename="${filename}">✕</button>
+        `;
+        fileList.appendChild(fileItem);
+    },
+
+    /**
      * Load current image
      */
     loadCurrentImage() {
         if (this.images.length === 0) return;
 
         const current = this.images[this.currentImageIndex];
+        if (!current) return;
+
         this.currentImageData = current.imageData;
 
         // Set image to zoom/pan
-        const canvas = document.getElementById('imageCanvas');
-        const img = current.imageData.img;
-        
-        ZoomPan.setImage(img, img.width, img.height);
+        ZoomPan.setImage(
+            current.imageData.img,
+            current.imageData.width,
+            current.imageData.height
+        );
 
-        // Show controls
+        // Show control sections
         UI.toggleSection('rgbStackSection', true);
         UI.toggleSection('analysisSettings', true);
         UI.setButtonState('analyzeBtn', true, '🔬 Analyze Particles');
 
-        // Calculate and show channel contrast
+        // Render channel previews
+        renderChannelPreviews(this.currentImageData.imageData, this.selectedChannel);
+
+        // Auto-select best channel
         this.analyzeChannelContrast();
+
+        // Hide previous results
+        UI.toggleSection('summarySection', false);
+        UI.toggleSection('resultsPanel', false);
+        UI.toggleSection('exportSection', false);
+        ZoomPan.particles = [];
     },
 
     /**
@@ -264,10 +337,10 @@ const App = {
 
         const rgbChannels = Detection.extractRGBChannels(this.currentImageData.imageData);
         const contrast = Detection.calculateContrastRatio(rgbChannels);
-        
+
         // Auto-select best channel
         this.selectedChannel = contrast.bestChannel;
-        
+
         // Update button states
         document.querySelectorAll('.rgb-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.channel === this.selectedChannel);
@@ -298,11 +371,11 @@ const App = {
         const idx = this.images.findIndex(img => img.name === filename);
         if (idx > -1) {
             this.images.splice(idx, 1);
-            
-            // Update file list
+
+            // Remove from file list UI
             const fileList = document.getElementById('fileList');
             const items = fileList.querySelectorAll('.file-item');
-            items[idx]?.remove();
+            if (items[idx]) items[idx].remove();
 
             // Update current index
             if (this.currentImageIndex >= this.images.length) {
@@ -321,14 +394,18 @@ const App = {
      * Clear canvas
      */
     clearCanvas() {
-        const canvas = document.getElementById('imageCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ZoomPan.particles = [];
+        ZoomPan.drawEmptyCanvas();
+        
+        this.currentImageData = null;
         
         UI.toggleSection('rgbStackSection', false);
         UI.toggleSection('analysisSettings', false);
         UI.toggleSection('summarySection', false);
+        UI.toggleSection('resultsPanel', false);
+        UI.toggleSection('exportSection', false);
+        UI.toggleSection('channelPreviewSection', false);
+        
         UI.setButtonState('analyzeBtn', false);
     },
 
@@ -343,6 +420,7 @@ const App = {
         UI.showLoading('Analyzing particles...');
 
         try {
+            // Run analysis
             const results = ParticleAnalysis.analyzeParticles(
                 this.currentImageData.imageData,
                 {
@@ -368,9 +446,9 @@ const App = {
             // Show results table
             this.showResultsTable(results);
 
-            // Show results panel
-            UI.toggleSection('resultsPanel', true);
-            
+            // Show export section
+            UI.toggleSection('exportSection', true);
+
             UI.hideLoading();
             UI.showSuccess(`Found ${results.totalParticles} particles!`);
 
@@ -392,7 +470,7 @@ const App = {
 
         const coverage = ((results.totalArea / (results.imageWidth * results.imageHeight)) * 100).toFixed(2);
 
-        document.getElementById('totalParticles').textContent = results.totalParticles;
+        document.getElementById('totalParticles').textContent = Utils.formatNumber(results.totalParticles);
         document.getElementById('totalArea').textContent = Utils.formatNumber(results.totalArea) + ' px²';
         document.getElementById('coveragePercent').textContent = coverage + '%';
     },
@@ -401,6 +479,8 @@ const App = {
      * Show results table
      */
     showResultsTable(results) {
+        UI.toggleSection('resultsPanel', true);
+
         const tbody = document.querySelector('#resultsTable tbody');
         tbody.innerHTML = '';
 
@@ -426,6 +506,7 @@ const App = {
             UI.showError('No analysis results to export');
             return;
         }
+
         Export.exportToCSV(this.analysisResults);
         UI.showSuccess('CSV exported successfully!');
     },
@@ -438,7 +519,7 @@ const App = {
             UI.showError('No analysis results to export');
             return;
         }
-        
+
         const canvas = document.getElementById('imageCanvas');
         Export.exportToPNG(
             canvas,
@@ -453,36 +534,41 @@ const App = {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
-    
-    // Bind remove button clicks using event delegation
-    document.getElementById('fileList')?.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            const filename = e.target.dataset.filename;
-            if (filename) App.removeImage(filename);
-        }
-    });
 });
 
-// Channel preview renderer - defined at module level
+/**
+ * Render channel previews (module-level function)
+ */
 function renderChannelPreviews(imageData, selectedChannel = 'gray') {
     const width = imageData.width;
     const height = imageData.height;
-    
-    const ctxFullRgb = document.getElementById('fullRgbCanvas').getContext('2d');
-    const ctx
-        const ctxGray = document.getElementById('grayscaleCanvas').getContext('2d');
-    const ctxRed = document.getElementById('redCanvas').getContext('2d');
-    const ctxGreen = document.getElementById('greenCanvas').getContext('2d');
-    const ctxBlue = document.getElementById('blueCanvas').getContext('2d');
-    const ctxEdge = document.getElementById('edgeCanvas').getContext('2d');
 
-    // Draw full RGB
+    // Get canvas contexts
+    const fullRgbCanvas = document.getElementById('fullRgbCanvas');
+    const grayscaleCanvas = document.getElementById('grayscaleCanvas');
+    const redCanvas = document.getElementById('redCanvas');
+    const greenCanvas = document.getElementById('greenCanvas');
+    const blueCanvas = document.getElementById('blueCanvas');
+    const edgeCanvas = document.getElementById('edgeCanvas');
+
+    if (!fullRgbCanvas) return;
+
+    // Set canvas dimensions
+    [fullRgbCanvas, grayscaleCanvas, redCanvas, greenCanvas, blueCanvas, edgeCanvas].forEach(canvas => {
+        if (canvas) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+    });
+
+        // Draw Full RGB
+    const ctxFullRgb = fullRgbCanvas.getContext('2d');
     ctxFullRgb.putImageData(imageData, 0, 0);
 
-    // Create grayscale data
+    // Create grayscale
     const gray = Detection.toGrayscale(imageData);
     const grayImageData = Detection.createGrayscaleImageData(gray, width, height);
-    ctxGray.putImageData(grayImageData, 0, 0);
+    grayscaleCanvas.getContext('2d').putImageData(grayImageData, 0, 0);
 
     // Extract RGB channels
     const data = imageData.data;
@@ -491,117 +577,57 @@ function renderChannelPreviews(imageData, selectedChannel = 'gray') {
     const blueChannel = new Uint8ClampedArray(width * height * 4);
 
     for (let i = 0; i < width * height; i++) {
-        redChannel[i * 4] = data[i * 4];
-        redChannel[i * 4 + 1] = 0;
-        redChannel[i * 4 + 2] = 0;
-        redChannel[i * 4 + 3] = 255;
+        const idx = i * 4;
 
-        greenChannel[i * 4] = 0;
-        greenChannel[i * 4 + 1] = data[i * 4 + 1];
-        greenChannel[i * 4 + 2] = 0;
-        greenChannel[i * 4 + 3] = 255;
+        // Red channel
+        redChannel[idx] = data[idx];
+        redChannel[idx + 1] = 0;
+        redChannel[idx + 2] = 0;
+        redChannel[idx + 3] = 255;
 
-        blueChannel[i * 4] = 0;
-        blueChannel[i * 4 + 1] = 0;
-        blueChannel[i * 4 + 2] = data[i * 4 + 2];
-        blueChannel[i * 4 + 3] = 255;
+        // Green channel
+        greenChannel[idx] = 0;
+        greenChannel[idx + 1] = data[idx + 1];
+        greenChannel[idx + 2] = 0;
+        greenChannel[idx + 3] = 255;
+
+        // Blue channel
+        blueChannel[idx] = 0;
+        blueChannel[idx + 1] = 0;
+        blueChannel[idx + 2] = data[idx + 2];
+        blueChannel[idx + 3] = 255;
     }
 
-    ctxRed.putImageData(new ImageData(redChannel, width, height), 0, 0);
-    ctxGreen.putImageData(new ImageData(greenChannel, width, height), 0, 0);
-    ctxBlue.putImageData(new ImageData(blueChannel, width, height), 0, 0);
+    redCanvas.getContext('2d').putImageData(new ImageData(redChannel, width, height), 0, 0);
+    greenCanvas.getContext('2d').putImageData(new ImageData(greenChannel, width, height), 0, 0);
+    blueCanvas.getContext('2d').putImageData(new ImageData(blueChannel, width, height), 0, 0);
 
     // Edge detection based on selected channel
-    let edgeSourceGray;
+    let edgeSource;
     if (selectedChannel === 'red') {
-        edgeSourceGray = new Uint8Array(width * height);
+        edgeSource = new Uint8Array(width * height);
         for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4];
+            edgeSource[i] = data[i * 4];
         }
     } else if (selectedChannel === 'green') {
-        edgeSourceGray = new Uint8Array(width * height);
+        edgeSource = new Uint8Array(width * height);
         for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4 + 1];
+            edgeSource[i] = data[i * 4 + 1];
         }
     } else if (selectedChannel === 'blue') {
-        edgeSourceGray = new Uint8Array(width * height);
+        edgeSource = new Uint8Array(width * height);
         for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4 + 2];
+            edgeSource[i] = data[i * 4 + 2];
         }
     } else {
-        edgeSourceGray = gray;
+        edgeSource = gray;
     }
 
-    const edge = Detection.sobelEdgeDetection(edgeSourceGray, width, height);
+    // Apply Sobel edge detection
+    const edge = Detection.sobelEdgeDetection(edgeSource, width, height);
     const edgeImageData = Detection.createEdgeImageData(edge, width, height);
-    ctxEdge.putImageData(edgeImageData, 0, 0);
+    edgeCanvas.getContext('2d').putImageData(edgeImageData, 0, 0);
 
-    document.getElementById('channelPreviewSection').style.display = 'block';
-}    const ctxGray = document.getElementById('grayscaleCanvas').getContext('2d');
-    const ctxRed = document.getElementById('redCanvas').getContext('2d');
-    const ctxGreen = document.getElementById('greenCanvas').getContext('2d');
-    const ctxBlue = document.getElementById('blueCanvas').getContext('2d');
-    const ctxEdge = document.getElementById('edgeCanvas').getContext('2d');
-
-    // Draw full RGB
-    ctxFullRgb.putImageData(imageData, 0, 0);
-
-    // Create grayscale data
-    const gray = Detection.toGrayscale(imageData);
-    const grayImageData = Detection.createGrayscaleImageData(gray, width, height);
-    ctxGray.putImageData(grayImageData, 0, 0);
-
-    // Extract RGB channels
-    const data = imageData.data;
-    const redChannel = new Uint8ClampedArray(width * height * 4);
-    const greenChannel = new Uint8ClampedArray(width * height * 4);
-    const blueChannel = new Uint8ClampedArray(width * height * 4);
-
-    for (let i = 0; i < width * height; i++) {
-        redChannel[i * 4] = data[i * 4];
-        redChannel[i * 4 + 1] = 0;
-        redChannel[i * 4 + 2] = 0;
-        redChannel[i * 4 + 3] = 255;
-
-        greenChannel[i * 4] = 0;
-        greenChannel[i * 4 + 1] = data[i * 4 + 1];
-        greenChannel[i * 4 + 2] = 0;
-        greenChannel[i * 4 + 3] = 255;
-
-        blueChannel[i * 4] = 0;
-        blueChannel[i * 4 + 1] = 0;
-        blueChannel[i * 4 + 2] = data[i * 4 + 2];
-        blueChannel[i * 4 + 3] = 255;
-    }
-
-    ctxRed.putImageData(new ImageData(redChannel, width, height), 0, 0);
-    ctxGreen.putImageData(new ImageData(greenChannel, width, height), 0, 0);
-    ctxBlue.putImageData(new ImageData(blueChannel, width, height), 0, 0);
-
-    // Edge detection based on selected channel
-    let edgeSourceGray;
-    if (selectedChannel === 'red') {
-        edgeSourceGray = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4];
-        }
-    } else if (selectedChannel === 'green') {
-        edgeSourceGray = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4 + 1];
-        }
-    } else if (selectedChannel === 'blue') {
-        edgeSourceGray = new Uint8Array(width * height);
-        for (let i = 0; i < width * height; i++) {
-            edgeSourceGray[i] = data[i * 4 + 2];
-        }
-    } else {
-        edgeSourceGray = gray;
-    }
-
-    const edge = Detection.sobelEdgeDetection(edgeSourceGray, width, height);
-    const edgeImageData = Detection.createEdgeImageData(edge, width, height);
-    ctxEdge.putImageData(edgeImageData, 0, 0);
-
-    document.getElementById('channelPreviewSection').style.display = 'block';
+    // Show channel preview section
+    UI.toggleSection('channelPreviewSection', true);
 }
