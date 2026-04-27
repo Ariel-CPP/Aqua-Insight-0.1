@@ -10,41 +10,30 @@ const ParticleAnalysis = {
      * @param {Object} options
      * @returns {Object} analysis results
      */
-    analyzeParticles(imageData, options) {
-        const {
-            channel,
-            threshold,
-            darkBackground,
-            sizeMin,
-            sizeMax,
-            circularityMin,
-            circularityMax
-        } = options;
+    analyzeParticles: function(imageData, options) {
+    var channel = options.channel;
+    var threshold = options.threshold;
+    var darkBackground = options.darkBackground;
+    var sizeMin = options.sizeMin;
+    var sizeMax = options.sizeMax;
+    var circularityMin = options.circularityMin;
+    var circularityMax = options.circularityMax;
 
-        const width = imageData.width;
-        const height = imageData.height;
+    var width = imageData.width;
+    var height = imageData.height;
 
-        // 1. Extract RGB channels
-        const rgbChannels = Detection.extractRGBChannels(imageData);
+    // 1. Extract RGB channels
+    var rgbChannels = Detection.extractRGBChannels(imageData);
 
-        // 2. Get selected channel data
-        const channelKey = channel + 'Channel';
-        const selectedChannel = rgbChannels[channelKey];
+    // 2. Get selected channel data - ✅ Ganti ke rgbChannels[channel]
+    var selectedChannel = rgbChannels[channel];
 
-        // 3. Create binary mask
-        const binaryMask = Detection.createBinaryMask(
-            selectedChannel,
-            threshold,
-            darkBackground
-        );
-
-        // 4. Find connected particles
-        const particles = this.findConnectedParticles(
-            binaryMask,
-            rgbChannels,
-            width,
-            height
-        );
+    // 3. Create binary mask
+    var binaryMask = Detection.createBinaryMask(
+        selectedChannel,
+        threshold,
+        darkBackground
+    );
 
         // 5. Filter by size and circularity
         const filteredParticles = this.filterParticles(
