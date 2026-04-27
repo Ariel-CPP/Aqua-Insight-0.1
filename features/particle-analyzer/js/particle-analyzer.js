@@ -2,7 +2,6 @@
  * Particle Analyzer - Aqua Insight
  */
 
-// ==================== STATE ====================
 var state = {
     image: null,
     imageData: null,
@@ -17,10 +16,8 @@ var state = {
     analyzed: false
 };
 
-// ==================== DOM ELEMENTS ====================
 var el = {};
 
-// ==================== INIT ====================
 function init() {
     el.canvas = document.getElementById('mainCanvas');
     el.ctx = el.canvas.getContext('2d');
@@ -35,24 +32,14 @@ function init() {
     el.minSizeSlider = document.getElementById('minSizeSlider');
     el.maxSizeSlider = document.getElementById('maxSizeSlider');
     el.invertCheck = document.getElementById('invertCheck');
-
     bindEvents();
-    console.log('✅ Particle Analyzer ready');
 }
 
 function bindEvents() {
     el.fileInput.addEventListener('change', handleFileUpload);
     el.uploadBox.addEventListener('click', function() { el.fileInput.click(); });
-    
-    el.uploadBox.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        el.uploadBox.classList.add('dragover');
-    });
-    
-    el.uploadBox.addEventListener('dragleave', function() {
-        el.uploadBox.classList.remove('dragover');
-    });
-    
+    el.uploadBox.addEventListener('dragover', function(e) { e.preventDefault(); el.uploadBox.classList.add('dragover'); });
+    el.uploadBox.addEventListener('dragleave', function() { el.uploadBox.classList.remove('dragover'); });
     el.uploadBox.addEventListener('drop', function(e) {
         e.preventDefault();
         el.uploadBox.classList.remove('dragover');
@@ -104,12 +91,10 @@ function bindEvents() {
     el.exportPngBtn.addEventListener('click', exportPNG);
 }
 
-// ==================== FILE HANDLING ====================
 function handleFileUpload() {
     var file = el.fileInput.files[0];
     if (!file) return;
-    
-    showToast('Loading image...');
+    showToast('Loading...');
     
     var reader = new FileReader();
     reader.onload = function(e) {
@@ -118,37 +103,30 @@ function handleFileUpload() {
             state.image = img;
             state.width = img.width;
             state.height = img.height;
-            
             el.canvas.width = state.width;
             el.canvas.height = state.height;
             el.ctx.drawImage(img, 0, 0);
             state.imageData = el.ctx.getImageData(0, 0, state.width, state.height);
-            
             el.previewCanvas.width = state.width;
             el.previewCanvas.height = state.height;
-            
             updatePreview();
             el.analyzeBtn.disabled = false;
             state.analyzed = false;
             state.particles = [];
-            
             document.getElementById('statsPanel').style.display = 'none';
             document.getElementById('resultsSection').style.display = 'none';
             el.exportCsvBtn.disabled = true;
             el.exportPngBtn.disabled = true;
-            
-            showToast('Image loaded! Click Analyze.');
+            showToast('Loaded! Click Analyze.');
         };
-        img.onerror = function() { showToast('Failed to load image'); };
+        img.onerror = function() { showToast('Failed to load'); };
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
 
-// ==================== PREVIEW ====================
 function updatePreview() {
-    if (!state.imageData) return;
-    
+    if (!state.imageData || !state.imageData.data) return;
     var data = state.imageData.data;
     var width = state.width;
     var height = state.height;
@@ -158,139 +136,74 @@ function updatePreview() {
     for (var i = 0; i < width * height; i++) {
         var pixelIdx = i * 4;
         var value;
-        
-        if (state.channel === 'red') {
-            value = data[pixelIdx];
-        } else if (state.channel === 'green') {
-            value = data[pixelIdx + 1];
-        } else if (state.channel === 'blue') {
-            value = data[pixelIdx + 2];
-        } else {
-            value = Math.round(0.299 * data[pixelIdx] + 0.587 * data[pixelIdx + 1] + 0.114 * data[pixelIdx + 2]);
-        }
-        
-        if (state.invert) {
-            value = value <= state.threshold ? 255 : 0;
-        } else {
-            value = value >= state.threshold ? 255 : 0;
-        }
-        
+        if (state.channel === 'red') value = data[pixelIdx];
+        else if (state.channel === 'green') value = data[pixelIdx + 1];
+        else if (state.channel === 'blue') value = data[pixelIdx + 2];
+        else value = Math.round(0.299 * data[pixelIdx] + 0.587 * data[pixelIdx + 1] + 0.114 * data[pixelIdx + 2]);
+        if (state.invert) value = value <= state.threshold ? 255 : 0;
+        else value = value >= state.threshold ? 255 : 0;
         outData[pixelIdx] = value;
         outData[pixelIdx + 1] = value;
         outData[pixelIdx + 2] = value;
         outData[pixelIdx + 3] = 255;
     }
-    
     el.previewCtx.putImageData(output, 0, 0);
-    
     var labels = { 'red': 'Red', 'green': 'Green', 'blue': 'Blue', 'gray': 'Gray' };
     document.getElementById('previewLabel').textContent = labels[state.channel];
 }
 
-// ==================== ANALYSIS ====================
 function runAnalysis() {
-    if (!state.imageData) return;
+    if (!state.imageData || !state.imageData.data) {
+        showToast('No image loaded!');
+        return;
+    }
     
     showToast('Analyzing...');
     
     var data = state.imageData.data;
     var width = state.width;
     var height = state.height;
-    
-    console.log('Width:', width, 'Height:', height);
-    
-    // Create binary mask
     var binaryMask = new Uint8Array(width * height);
     
     for (var i = 0; i < width * height; i++) {
         var pixelIdx = i * 4;
         var value;
-        
-        if (state.channel === 'red') {
-            value = data[pixelIdx];
-        } else if (state.channel === 'green') {
-            value = data[pixelIdx + 1];
-        } else if (state.channel === 'blue') {
-            value = data[pixelIdx + 2];
-        } else {
-            value = Math.round(0.299 * data[pixelIdx] + 0.587 * data[pixelIdx + 1] + 0.114 * data[pixelIdx + 2]);
-        }
-        
-        if (state.invert) {
-            binaryMask[i] = value <= state.threshold ? 1 : 0;
-        } else {
-            binaryMask[i] = value >= state.threshold ? 1 : 0;
-        }
+        if (state.channel === 'red') value = data[pixelIdx];
+        else if (state.channel === 'green') value = data[pixelIdx + 1];
+        else if (state.channel === 'blue') value = data[pixelIdx + 2];
+        else value = Math.round(0.299 * data[pixelIdx] + 0.587 * data[pixelIdx + 1] + 0.114 * data[pixelIdx + 2]);
+        if (state.invert) binaryMask[i] = value <= state.threshold ? 1 : 0;
+        else binaryMask[i] = value >= state.threshold ? 1 : 0;
     }
     
-    // Count foreground pixels
-    var fgCount = 0;
-    for (var i = 0; i < binaryMask.length; i++) {
-        if (binaryMask[i] === 1) fgCount++;
-    }
-    console.log('Foreground pixels:', fgCount);
-    
-    // Find particles
     var visited = new Uint8Array(width * height);
     var particles = [];
-    var particleIndex = 0;
     
     for (var i = 0; i < width * height; i++) {
         if (visited[i] === 1 || binaryMask[i] === 0) continue;
-        
-        console.log('Processing particle at index:', i);
         var pixelCoords = floodFill(i, binaryMask, visited, width, height);
-        console.log('Flood fill result:', pixelCoords ? pixelCoords.length : 'NULL');
-        
         if (pixelCoords && pixelCoords.length >= state.minSize && pixelCoords.length <= state.maxSize) {
-            var particle = analyzeParticle(pixelCoords, data, width, height);
-            particles.push(particle);
-            particleIndex++;
-        }
-        
-        // Stop after finding 10 particles (debug)
-        if (particleIndex >= 10) {
-            console.log('Stopped after 10 particles (debug)');
-            break;
+            var particle = analyzeParticle(pixelCoords, state.imageData, width, height);
+            if (particle && particle.size > 0) particles.push(particle);
         }
     }
-    
-    console.log('Total particles found:', particles.length);
     
     particles.sort(function(a, b) { return b.size - a.size; });
-    
-    for (var i = 0; i < particles.length; i++) {
-        particles[i].number = i + 1;
-    }
+    for (var i = 0; i < particles.length; i++) particles[i].number = i + 1;
     
     state.particles = particles;
     state.analyzed = true;
-    
     updateStats();
     drawOverlay();
     updateResultsTable();
-    
     el.exportCsvBtn.disabled = false;
     el.exportPngBtn.disabled = false;
-    
     showToast('Found ' + particles.length + ' particles!');
 }
 
-// ==================== FLOOD FILL ====================
 function floodFill(startIdx, binaryMask, visited, width, height) {
-    // ✅ FIX: Always return array
     var pixels = [];
-    
-    if (!binaryMask || !visited) {
-        console.error('floodFill: invalid parameters');
-        return pixels;
-    }
-    
-    if (startIdx < 0 || startIdx >= width * height) {
-        console.error('floodFill: invalid startIdx', startIdx);
-        return pixels;
-    }
-    
+    if (startIdx < 0 || startIdx >= width * height) return pixels;
     var queue = [startIdx];
     visited[startIdx] = 1;
     var neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -299,13 +212,10 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
         var current = queue.shift();
         var x = current % width;
         var y = Math.floor(current / width);
-        
         pixels.push({ x: x, y: y, idx: current });
-        
         for (var n = 0; n < neighbors.length; n++) {
             var nx = x + neighbors[n][0];
             var ny = y + neighbors[n][1];
-            
             if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                 var nIdx = ny * width + nx;
                 if (visited[nIdx] === 0 && binaryMask[nIdx] === 1) {
@@ -314,53 +224,37 @@ function floodFill(startIdx, binaryMask, visited, width, height) {
                 }
             }
         }
-        
         if (pixels.length > 100000) break;
     }
-    
     return pixels;
 }
 
-// ==================== ANALYZE PARTICLE ====================
 function analyzeParticle(pixels, imageData, width, height) {
-    // ✅ FIX: Safety check for pixels
     if (!pixels || pixels.length === 0) {
-        return { 
-            size: 0, 
-            centroid: { x: 0, y: 0 }, 
-            meanR: 0, 
-            meanG: 0, 
-            meanB: 0, 
-            circularity: 0, 
-            perimeter: 0 
-        };
+        return { size: 0, centroid: { x: 0, y: 0 }, meanR: 0, meanG: 0, meanB: 0, circularity: 0, perimeter: 0 };
+    }
+    
+    if (!imageData || !imageData.data) {
+        console.error('Invalid imageData');
+        return { size: 0, centroid: { x: 0, y: 0 }, meanR: 0, meanG: 0, meanB: 0, circularity: 0, perimeter: 0 };
     }
     
     var size = pixels.length;
     var data = imageData.data;
-    
     var sumX = 0, sumY = 0, sumR = 0, sumG = 0, sumB = 0;
     
     for (var i = 0; i < size; i++) {
         var pixelIdx = pixels[i].idx;
-        
-        // Skip invalid pixels
-        if (pixelIdx < 0 || pixelIdx >= width * height) {
-            continue;
-        }
+        if (pixelIdx < 0 || pixelIdx >= width * height) continue;
         
         var dataIdx = pixelIdx * 4;
-        
-        // Bounds check
-        if (dataIdx + 2 >= data.length) {
-            continue;
-        }
+        if (dataIdx < 0 || dataIdx + 2 >= data.length) continue;
         
         sumX += pixels[i].x;
         sumY += pixels[i].y;
-        sumR += data[dataIdx] || 0;
-        sumG += data[dataIdx + 1] || 0;
-        sumB += data[dataIdx + 2] || 0;
+        sumR += data[dataIdx];
+        sumG += data[dataIdx + 1];
+        sumB += data[dataIdx + 2];
     }
     
     var centroid = { x: sumX / size, y: sumY / size };
@@ -378,10 +272,8 @@ function analyzeParticle(pixels, imageData, width, height) {
     };
 }
 
-// ==================== PERIMETER ====================
 function calculatePerimeter(pixels, width, height) {
     if (pixels.length === 0) return 0;
-    
     var pixelSet = {};
     for (var i = 0; i < pixels.length; i++) {
         pixelSet[pixels[i].idx] = true;
@@ -392,30 +284,24 @@ function calculatePerimeter(pixels, width, height) {
     
     for (var i = 0; i < pixels.length; i++) {
         var p = pixels[i];
-        
         for (var n = 0; n < neighbors.length; n++) {
             var nx = p.x + neighbors[n][0];
             var ny = p.y + neighbors[n][1];
             var nIdx = ny * width + nx;
-            
             if (nx < 0 || nx >= width || ny < 0 || ny >= height || !pixelSet[nIdx]) {
                 count++;
             }
         }
     }
-    
     return count;
 }
 
-// ==================== UPDATE UI ====================
 function updateStats() {
     var totalArea = 0;
     for (var i = 0; i < state.particles.length; i++) {
         totalArea += state.particles[i].size;
     }
-    
     var coverage = (totalArea / (state.width * state.height) * 100).toFixed(2);
-    
     document.getElementById('totalParticles').textContent = state.particles.length;
     document.getElementById('totalArea').textContent = formatNumber(totalArea) + ' px²';
     document.getElementById('coverage').textContent = coverage + '%';
@@ -425,7 +311,6 @@ function updateStats() {
 function updateResultsTable() {
     var tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
-    
     var maxRows = 50;
     for (var i = 0; i < Math.min(state.particles.length, maxRows); i++) {
         var p = state.particles[i];
@@ -439,20 +324,16 @@ function updateResultsTable() {
             '<td>' + p.circularity.toFixed(3) + '</td>';
         tbody.appendChild(tr);
     }
-    
     if (state.particles.length > maxRows) {
         var tr = document.createElement('tr');
         tr.innerHTML = '<td colspan="6" style="text-align:center;color:#64748b;">+' + (state.particles.length - maxRows) + ' more</td>';
         tbody.appendChild(tr);
     }
-    
     document.getElementById('resultsSection').style.display = 'block';
 }
 
-// ==================== DRAW OVERLAY ====================
 function drawOverlay() {
     if (!state.image) return;
-    
     el.ctx.clearRect(0, 0, state.width, state.height);
     el.ctx.drawImage(state.image, 0, 0);
     
@@ -492,10 +373,8 @@ function drawOverlay() {
     }
 }
 
-// ==================== EXPORT ====================
 function exportCSV() {
     if (state.particles.length === 0) return;
-    
     var csv = 'AQUA INSIGHT - PARTICLE ANALYSIS\n';
     csv += 'Date,' + new Date().toLocaleString() + '\n';
     csv += 'Image,' + state.width + 'x' + state.height + '\n';
@@ -504,7 +383,7 @@ function exportCSV() {
     csv += 'Particles,' + state.particles.length + '\n\n';
     csv += 'No,Size,Centroid X,Centroid Y,Mean R,Mean G,Mean B,Circularity\n';
     
-       for (var i = 0; i < state.particles.length; i++) {
+    for (var i = 0; i < state.particles.length; i++) {
         var p = state.particles[i];
         csv += p.number + ',' + p.size + ',' + 
                p.centroid.x.toFixed(1) + ',' + p.centroid.y.toFixed(1) + ',' +
@@ -518,12 +397,10 @@ function exportCSV() {
 
 function exportPNG() {
     if (!state.image) return;
-    
     var exportCanvas = document.createElement('canvas');
     exportCanvas.width = state.width;
     exportCanvas.height = state.height;
     var ctx = exportCanvas.getContext('2d');
-    
     ctx.drawImage(state.image, 0, 0);
     
     for (var i = 0; i < state.particles.length; i++) {
@@ -573,7 +450,6 @@ function exportPNG() {
     showToast('PNG exported!');
 }
 
-// ==================== UTILITIES ====================
 function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -592,11 +468,9 @@ function showToast(message) {
     var toast = document.getElementById('toast');
     toast.textContent = message;
     toast.classList.add('show');
-    
     setTimeout(function() {
         toast.classList.remove('show');
     }, 3000);
 }
 
-// ==================== START ====================
 document.addEventListener('DOMContentLoaded', init);
