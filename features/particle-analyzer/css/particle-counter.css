@@ -110,6 +110,34 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
+.channel-previews {
+    display:flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.preview-item {
+    text-align: center;
+    flex: 1 1 120px;
+}
+
+.preview-item label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #00d4ff;
+}
+
+canvas {
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 6px;
+    background: #111;
+    max-width: 150px;
+    max-height: 150px;
+    width: 100%;
+    height: auto;
+}
 
 /* File Upload */
 .file-upload-area {
