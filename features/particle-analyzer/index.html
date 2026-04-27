@@ -60,7 +60,36 @@
                     <button class="rgb-btn" data-channel="blue">Blue</button>
                 </div>
             </div>
-
+<!-- Channel Preview Images -->
+<div class="control-section" id="channelPreviewSection" style="display:none;">
+    <h3>🖼️ Channel Previews</h3>
+    <div class="channel-previews">
+        <div class="preview-item">
+            <label>Full RGB</label>
+            <canvas id="fullRgbCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="preview-item">
+            <label>Grayscale</label>
+            <canvas id="grayscaleCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="preview-item">
+            <label>Red Channel</label>
+            <canvas id="redCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="preview-item">
+            <label>Green Channel</label>
+            <canvas id="greenCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="preview-item">
+            <label>Blue Channel</label>
+            <canvas id="blueCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="preview-item">
+            <label>Edge Detection (Sobel) on Selected Channel</label>
+            <canvas id="edgeCanvas" width="150" height="150"></canvas>
+        </div>
+    </div>
+</div>
             <!-- Threshold & Analysis Settings -->
             <div class="control-section" id="analysisSettings" style="display: none;">
                 <h3>⚙️ Analysis Settings</h3>
