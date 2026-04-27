@@ -197,6 +197,8 @@ function runAnalysis() {
     var width = state.width;
     var height = state.height;
     
+    console.log('Width:', width, 'Height:', height);
+    
     // Create binary mask
     var binaryMask = new Uint8Array(width * height);
     
@@ -221,20 +223,39 @@ function runAnalysis() {
         }
     }
     
+    // Count foreground pixels
+    var fgCount = 0;
+    for (var i = 0; i < binaryMask.length; i++) {
+        if (binaryMask[i] === 1) fgCount++;
+    }
+    console.log('Foreground pixels:', fgCount);
+    
     // Find particles
     var visited = new Uint8Array(width * height);
     var particles = [];
+    var particleIndex = 0;
     
     for (var i = 0; i < width * height; i++) {
         if (visited[i] === 1 || binaryMask[i] === 0) continue;
         
+        console.log('Processing particle at index:', i);
         var pixelCoords = floodFill(i, binaryMask, visited, width, height);
+        console.log('Flood fill result:', pixelCoords ? pixelCoords.length : 'NULL');
         
-        if (pixelCoords.length >= state.minSize && pixelCoords.length <= state.maxSize) {
+        if (pixelCoords && pixelCoords.length >= state.minSize && pixelCoords.length <= state.maxSize) {
             var particle = analyzeParticle(pixelCoords, data, width, height);
             particles.push(particle);
+            particleIndex++;
+        }
+        
+        // Stop after finding 10 particles (debug)
+        if (particleIndex >= 10) {
+            console.log('Stopped after 10 particles (debug)');
+            break;
         }
     }
+    
+    console.log('Total particles found:', particles.length);
     
     particles.sort(function(a, b) { return b.size - a.size; });
     
@@ -257,7 +278,19 @@ function runAnalysis() {
 
 // ==================== FLOOD FILL ====================
 function floodFill(startIdx, binaryMask, visited, width, height) {
+    // ✅ FIX: Always return array
     var pixels = [];
+    
+    if (!binaryMask || !visited) {
+        console.error('floodFill: invalid parameters');
+        return pixels;
+    }
+    
+    if (startIdx < 0 || startIdx >= width * height) {
+        console.error('floodFill: invalid startIdx', startIdx);
+        return pixels;
+    }
+    
     var queue = [startIdx];
     visited[startIdx] = 1;
     var neighbors = [[-1, 0], [1, 0], [0, -1], [0, 1]];
