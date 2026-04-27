@@ -373,25 +373,26 @@ const App = {
     /**
      * Analyze channel contrast
      */
-    analyzeChannelContrast: function() {
-        if (!this.currentImageData) return;
+   analyzeChannelContrast: function() {
+    if (!this.currentImageData) return;
 
-        var rgbChannels = Detection.extractRGBChannels(this.currentImageData.imageData);
-        var contrast = Detection.calculateContrastRatio(rgbChannels);
+    var rgbChannels = Detection.extractRGBChannels(this.currentImageData.imageData);
+    var contrast = Detection.calculateContrastRatio(rgbChannels);
 
-        // Auto-select best channel
-        this.selectedChannel = contrast.bestChannel;
+    // Auto-select best channel
+    this.selectedChannel = contrast.bestChannel;
 
-        // Update button states
-        var rgbButtons = document.querySelectorAll('.rgb-btn');
-        for (var i = 0; i < rgbButtons.length; i++) {
-            if (rgbButtons[i].getAttribute('data-channel') === this.selectedChannel) {
-                rgbButtons[i].classList.add('active');
-            } else {
-                rgbButtons[i].classList.remove('active');
-            }
+    // Update button states
+    var rgbButtons = document.querySelectorAll('.rgb-btn');
+    for (var i = 0; i < rgbButtons.length; i++) {
+        var btnChannel = rgbButtons[i].getAttribute('data-channel');
+        if (btnChannel === this.selectedChannel) {
+            rgbButtons[i].classList.add('active');
+        } else {
+            rgbButtons[i].classList.remove('active');
         }
-    },
+    }
+},
 
     /**
      * Select RGB channel
