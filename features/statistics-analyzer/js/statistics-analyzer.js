@@ -1156,35 +1156,56 @@ function displayDescriptive(result) {
     return html;
 }
 
-function displayTTest(result) {
+function displayAnova(result) {
     var sigClass = result.significant ? 'significant' : 'not-significant';
     var sigText = result.significant ? 'SIGNIFIKAN' : 'TIDAK SIGNIFIKAN';
     
     var html = '<div class="result-card">';
-    html += '<h4 class="result-title">' + result.type + '</h4>';
-    html += '<div class="result-row"><span class="result-label">Variabel</span><span class="result-value">' + result.groups[0] + ' vs ' + result.groups[1] + '</span></div>';
+    html += '<h4 class="result-title">One-Way ANOVA</h4>';
     html += '<div class="result-row"><span class="result-label">Alpha</span><span class="result-value">' + result.alpha + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">Grand Mean</span><span class="result-value">' + result.grandMean.toFixed(4) + '</span></div>';
     html += '</div>';
     
     html += '<div class="result-card">';
     html += '<h5 style="color: #38bdf8;">Group Statistics</h5>';
     html += '<table class="results-table"><thead><tr><th>Group</th><th>N</th><th>Mean</th><th>Std</th></tr></thead><tbody>';
-    html += '<tr><td>' + result.groups[0] + '</td><td>' + result.group1.n + '</td><td>' + result.group1.mean.toFixed(4) + '</td><td>' + result.group1.std.toFixed(4) + '</td></tr>';
-    html += '<tr><td>' + result.groups[1] + '</td><td>' + result.group2.n + '</td><td>' + result.group2.mean.toFixed(4) + '</td><td>' + result.group2.std.toFixed(4) + '</td></tr>';
+    for (var i = 0; i < result.groupStats.length; i++) {
+        var g = result.groupStats[i];
+        html += '<tr><td>' + g.name + '</td><td>' + g.n + '</td><td>' + g.mean.toFixed(4) + '</td><td>' + g.std.toFixed(4) + '</td></tr>';
+    }
     html += '</tbody></table>';
     html += '</div>';
     
     html += '<div class="result-card">';
-    html += '<h5 style="color: #38bdf8;">Test Results</h5>';
-    html += '<div class="result-row"><span class="result-label">t-value</span><span class="result-value">' + result.t.toFixed(4) + '</span></div>';
-    html += '<div class="result-row"><span class="result-label">df</span><span class="result-value">' + result.df + '</span></div>';
-    html += '<div class="result-row"><span class="result-label">p-value</span><span class="result-value ' + sigClass + '">' + result.p.toFixed(6) + '</span></div>';
-    html += '<div class="result-row"><span class="result-label">t-critical</span><span class="result-value">' + result.tCritical.toFixed(4) + '</span></div>';
+    html += '<h5 style="color: #38bdf8;">ANOVA Table</h5>';
+    html += '<table class="results-table"><thead><tr><th>Source</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p</th></tr></thead><tbody>';
+    html += '<tr><td>Between Groups</td><td>' + result.ssb.toFixed(4) + '</td><td>' + result.dfb + '</td><td>' + result.msb.toFixed(4) + '</td><td>' + result.f.toFixed(4) + '</td><td class="' + sigClass + '">' + result.p.toFixed(6) + '</td></tr>';
+    html += '<tr><td>Within Groups</td><td>' + result.ssw.toFixed(4) + '</td><td>' + result.dfw + '</td><td>' + result.msw.toFixed(4) + '</td><td>-</td><td>-</td></tr>';
+    html += '<tr><td>Total</td><td>' + result.sst.toFixed(4) + '</td><td>' + result.dft + '</td><td>-</td><td>-</td><td>-</td></tr>';
+    html += '</tbody></table>';
     html += '</div>';
+    
+    if (result.postHoc) {
+        html += '<div class="result-card">';
+        html += '<h5 style="color: #38bdf8;">Post-Hoc (' + result.postHoc.type + ')</h5>';
+        html += '<table class="results-table"><thead><tr><th>Comparison</th><th>Mean 1</th><th>Mean 2</th><th>Diff</th><th>p-value</th><th>Sig?</th></tr></thead><tbody>';
+        for (var i = 0; i < result.postHoc.comparisons.length; i++) {
+            var c = result.postHoc.comparisons[i];
+            var compSig = c.significant ? 'significant' : 'not-significant';
+            html += '<tr><td>' + c.group1 + ' vs ' + c.group2 + '</td>';
+            html += '<td>' + c.mean1.toFixed(4) + '</td>';
+            html += '<td>' + c.mean2.toFixed(4) + '</td>';
+            html += '<td>' + c.diff.toFixed(4) + '</td>';
+            html += '<td class="' + compSig + '">' + c.p.toFixed(6) + '</td>';
+            html += '<td class="' + compSig + '">' + (c.significant ? 'Yes' : 'No') + '</td></tr>';
+        }
+        html += '</tbody></table>';
+        html += '</div>';
+    }
     
     html += '<div class="result-card" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3);">';
     html += '<h5 style="color: #22c55e;">Kesimpulan</h5>';
-    html += '<p style="margin: 0; color: #e2e8f0;">' + result.conclusion + '</p>';
+    html += '<p style="margin: 0;">' + result.conclusion + '</p>';
     html += '<p style="margin: 10px 0 0 0;" class="' + sigClass + '"><strong>Status: ' + sigText + '</strong></p>';
     html += '</div>';
     
