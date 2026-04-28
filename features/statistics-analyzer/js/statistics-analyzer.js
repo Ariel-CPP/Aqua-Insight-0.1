@@ -563,7 +563,7 @@ function dispTTestPaired(r) {
     html += '</div>';
     html += '<div class="result-card">';
     html += '<div class="result-row"><span class="result-label">N</span><span class="result-value">' + r.n + '</span></div>';
-    html += '<div class="result-row"><span class="result-label">Mean Difference</span><span class="result-value">' + r.meanDiff.toFixed(4                                                                                                                                    
+    html += '<div class="result-row"><span class="result-label">Mean Difference</span><span class="result-value">' + r.meanDiff.toFixed(4)                                                                                                                                    
     html += '<div class="result-row"><span class="result-label">Mean Difference</span><span class="result-value">' + r.meanDiff.toFixed(4) + '</span></div>';
     html += '<div class="result-row"><span class="result-label">SD Difference</span><span class="result-value">' + r.stdDiff.toFixed(4) + '</span></div>';
     html += '<div class="result-row"><span class="result-label">t-value</span><span class="result-value">' + r.t.toFixed(4) + '</span></div>';
