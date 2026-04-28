@@ -33,7 +33,7 @@
         .back-link:hover { background: rgba(56, 189, 248, 0.2); }
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 380px;
             gap: 20px;
         }
         .data-section, .control-section, .results-section {
@@ -44,7 +44,7 @@
         .section-title { color: #38bdf8; margin: 0 0 15px 0; font-size: 1.1rem; }
         .data-input {
             width: 100%;
-            min-height: 300px;
+            min-height: 250px;
             background: #0f172a;
             border: 2px solid #334155;
             border-radius: 12px;
@@ -109,6 +109,67 @@
             border-color: transparent;
             color: white;
         }
+        
+        /* Variable Selection */
+        .var-section {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .var-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .var-section-title .icon { font-size: 1.2rem; }
+        .var-section-title .text { color: #e2e8f0; }
+        .var-section-title .badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+        .var-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .var-chip {
+            padding: 8px 14px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 20px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .var-chip:hover { border-color: #38bdf8; }
+        .var-chip.selected {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+        .var-chip.dependent.selected {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .var-chip.factor.selected {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: #f97316;
+            color: #f97316;
+        }
+        .var-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        
         .result-card {
             background: #0f172a;
             border-radius: 12px;
@@ -175,20 +236,21 @@
         
         <div class="page-header">
             <h1 class="page-title">📊 Statistics Analyzer</h1>
-            <p class="page-subtitle">Analisis statistik untuk penelitian aquaculture</p>
+            <p class="page-subtitle">Statistical analysis for aquaculture research</p>
         </div>
         
         <div class="info-box">
-            <p>💡 <strong>Petunjuk:</strong> Paste data tab-separated (dari Excel). Baris pertama = nama parameter. Max 20 kolom × 100 baris.</p>
+            <p>💡 <strong>Instructions:</strong> Paste tab-separated data (from Excel). First row = column names. Max 20 columns × 100 rows. Select variables below before analyzing.</p>
         </div>
         
         <div class="main-grid">
             <div class="data-section">
                 <h3 class="section-title">📋 Data Input</h3>
-                <textarea id="dataInput" class="data-input" placeholder="Parameter1    Parameter2    Parameter3
-12.5          15.3          18.2
-11.8          14.9          17.5
-13.2          16.1          19.0"></textarea>
+                <textarea id="dataInput" class="data-input" placeholder="Weight_g    Length_cm    Temperature    PH
+12.5          15.3          28.2          7.2
+11.8          14.9          27.5          7.1
+13.2          16.1          29.0          7.3
+..."></textarea>
                 
                 <div class="btn-row">
                     <button class="btn btn-primary" id="analyzeBtn">🔍 Analyze</button>
@@ -209,23 +271,33 @@
                         <button class="alpha-btn" data-alpha="0.10">α = 0.10</button>
                     </div>
                     
-                    <label class="control-label">Jenis Analisis</label>
+                    <label class="control-label">Analysis Type</label>
                     <select id="analysisType" class="select-input">
-                        <option value="descriptive">Descriptive Statistics</option>
-                        <option value="ttest-ind" selected>Independent T-Test</option>
-                        <option value="ttest-paired">Paired T-Test</option>
-                        <option value="anova">One-Way ANOVA</option>
-                        <option value="pearson">Pearson Correlation</option>
-                        <option value="spearman">Spearman Correlation</option>
-                        <option value="regression">Linear Regression</option>
-                        <option value="normality">Normality Test</option>
-                        <option value="homogeneity">Homogeneity Test</option>
+                        <optgroup label="📈 Descriptive">
+                            <option value="descriptive">Descriptive Statistics</option>
+                        </optgroup>
+                        <optgroup label="📉 Comparison">
+                            <option value="ttest-ind" selected>Independent T-Test</option>
+                            <option value="ttest-paired">Paired T-Test</option>
+                            <option value="anova">One-Way ANOVA</option>
+                        </optgroup>
+                        <optgroup label="🔗 Correlation">
+                            <option value="pearson">Pearson Correlation</option>
+                            <option value="spearman">Spearman Correlation</option>
+                        </optgroup>
+                        <optgroup label="📐 Regression">
+                            <option value="regression">Linear Regression</option>
+                        </optgroup>
+                        <optgroup label="✅ Assumptions">
+                            <option value="normality">Normality Test</option>
+                            <option value="homogeneity">Homogeneity Test</option>
+                        </optgroup>
                     </select>
                     
                     <div id="postHocSection" style="display: none;">
                         <label class="control-label" style="margin-top: 15px;">Post-Hoc</label>
                         <select id="postHocType" class="select-input">
-                            <option value="">-- Pilih --</option>
+                            <option value="">-- Select --</option>
                             <option value="lsd">LSD</option>
                             <option value="duncan">Duncan</option>
                             <option value="tukey">Tukey HSD</option>
@@ -233,18 +305,46 @@
                         </select>
                     </div>
                 </div>
+                
+                <!-- Variable Selection -->
+                <div class="control-section" style="margin-top: 20px;">
+                    <h3 class="section-title">🎯 Variable Selection</h3>
+                    
+                    <div class="var-section">
+                        <div class="var-section-title">
+                            <span class="icon">📊</span>
+                            <span class="text">Dependent Variable (Y)</span>
+                            <span class="badge">Response</span>
+                        </div>
+                        <div class="var-list" id="dependentList">
+                            <span style="color: #64748b; font-size: 0.85rem;">Load data first...</span>
+                        </div>
+                        <p class="var-hint">The variable you want to measure/predict</p>
+                    </div>
+                    
+                    <div class="var-section">
+                        <div class="var-section-title">
+                            <span class="icon">⚙️</span>
+                            <span class="text">Independent Variable (X)</span>
+                            <span class="badge">Factor</span>
+                        </div>
+                        <div class="var-list" id="factorList">
+                            <span style="color: #64748b; font-size: 0.85rem;">Load data first...</span>
+                        </div>
+                        <p class="var-hint">The predictor/explanatory variable</p>
+                    </div>
+                </div>
             </div>
         </div>
         
         <div id="resultsSection" class="results-section" style="display: none;">
-            <h3 class="section-title">📊 Hasil Analisis</h3>
+            <h3 class="section-title">📊 Analysis Results</h3>
             <div id="resultsContent"></div>
         </div>
     </div>
     
     <div class="toast" id="toast"></div>
     
-    <!-- Load JS files in order -->
     <script src="js/stats-core.js"></script>
     <script src="js/stats-tables.js"></script>
     <script src="js/stats-tests.js"></script>
