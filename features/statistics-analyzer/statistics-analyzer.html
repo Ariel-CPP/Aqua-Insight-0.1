@@ -13,7 +13,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
-    <!-- jStat Library for Statistical Calculations -->
+    <!-- jStat -->
     <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     
     <!-- Custom CSS -->
@@ -41,67 +41,33 @@
             <!-- Data Input Section -->
             <section class="card data-input-section">
                 <div class="card-header">
-                    <h2>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                        Data Input
-                    </h2>
+                    <h2>Data Input</h2>
                     <span class="badge" id="dataStatus">No data loaded</span>
                 </div>
-                
                 <div class="card-body">
-                    <!-- Data Input Tabs -->
+                    <!-- Tabs -->
                     <div class="input-tabs">
-                        <button class="tab-btn active" data-tab="paste">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                            </svg>
-                            Paste Data
-                        </button>
-                        <button class="tab-btn" data-tab="manual">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                            Manual Input
-                        </button>
+                        <button class="tab-btn active" data-tab="paste">Paste Data</button>
+                        <button class="tab-btn" data-tab="manual">Manual Input</button>
                     </div>
 
-                    <!-- Paste Data Tab -->
+                    <!-- Paste Tab -->
                     <div class="tab-content active" id="paste-tab">
                         <div class="form-group">
-                            <label for="dataInput">Paste your data here (Excel/CSV format)</label>
-                            <textarea id="dataInput" placeholder="Parameter_A&#9;Parameter_B&#9;Parameter_C&#10;12.5&#9;15.2&#9;18.3&#10;14.1&#9;16.8&#9;19.5&#10;..."></textarea>
+                            <label for="dataInput">Paste your data (Excel/CSV format)</label>
+                            <textarea id="dataInput" placeholder="Parameter_A&#9;Parameter_B&#9;Parameter_C&#10;12.5&#9;15.2&#9;18.3&#10;..."></textarea>
                             <div class="input-help">
-                                <span>First row: Parameter names</span>
+                                <span>First row: Parameter names | Tab or comma separated</span>
                                 <span>Max: 20 parameters × 100 data points</span>
                             </div>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-primary" id="loadDataBtn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="17 8 12 3 7 8"/>
-                                    <line x1="12" y1="3" x2="12" y2="15"/>
-                                </svg>
-                                Load Data
-                            </button>
-                            <button class="btn btn-secondary" id="clearDataBtn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                                Clear
-                            </button>
+                                                        <button class="btn btn-primary" id="loadDataBtn">Load Data</button>
+                            <button class="btn btn-secondary" id="clearDataBtn">Clear</button>
                         </div>
                     </div>
 
-                    <!-- Manual Input Tab -->
+                    <!-- Manual Tab -->
                     <div class="tab-content" id="manual-tab">
                         <div class="manual-controls">
                             <div class="form-group-inline">
@@ -114,33 +80,17 @@
                             </div>
                             <button class="btn btn-secondary btn-sm" id="generateTableBtn">Generate Table</button>
                         </div>
-                        <div class="table-container" id="manualTableContainer">
-                            <!-- Dynamic table will be inserted here -->
-                        </div>
-                        <button class="btn btn-primary" id="loadManualDataBtn" style="margin-top: 1rem;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
-                            Load Data
-                        </button>
+                        <div class="table-container" id="manualTableContainer"></div>
+                        <button class="btn btn-primary" id="loadManualDataBtn" style="margin-top: 1rem;">Load Data</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Data Preview Section -->
-            <section class="card data-preview-section" id="dataPreviewSection" style="display: none;">
+            <!-- Data Preview -->
+            <section class="card" id="dataPreviewSection" style="display: none;">
                 <div class="card-header">
-                    <h2>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="3" y1="9" x2="21" y2="9"/>
-                            <line x1="9" y1="21" x2="9" y2="9"/>
-                        </svg>
-                        Data Preview
-                    </h2>
-                    <span class="badge success" id="dataInfo">0 parameters × 0 data points</span>
+                    <h2>Data Preview</h2>
+                    <span class="badge success" id="dataInfo">0 × 0</span>
                 </div>
                 <div class="card-body">
                     <div class="table-wrapper">
@@ -149,23 +99,14 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                    <div class="descriptive-stats" id="descriptiveStats">
-                        <!-- Descriptive statistics will be inserted here -->
-                    </div>
+                    <div class="descriptive-stats" id="descriptiveStats"></div>
                 </div>
             </section>
 
-            <!-- Analysis Configuration Section -->
-            <section class="card analysis-config-section" id="analysisConfigSection" style="display: none;">
+            <!-- Analysis Config -->
+            <section class="card" id="analysisConfigSection" style="display: none;">
                 <div class="card-header">
-                    <h2>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="20" x2="18" y2="10"/>
-                            <line x1="12" y1="20" x2="12" y2="4"/>
-                            <line x1="6" y1="20" x2="6" y2="14"/>
-                        </svg>
-                        Analysis Configuration
-                    </h2>
+                    <h2>Analysis Configuration</h2>
                 </div>
                 <div class="card-body">
                     <!-- Alpha Level -->
@@ -178,304 +119,190 @@
                         </select>
                     </div>
 
-                    <!-- Analysis Type Selection -->
+                    <!-- Analysis Type Grid -->
                     <div class="analysis-type-grid">
-                        <!-- T-Test Card -->
                         <div class="analysis-type-card" data-analysis="ttest">
-                            <div class="card-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="8.5" cy="7" r="4"/>
-                                    <line x1="20" y1="8" x2="20" y2="14"/>
-                                    <line x1="23" y1="11" x2="17" y2="11"/>
-                                </svg>
-                            </div>
+                            <div class="card-icon blue">t</div>
                             <h3>T-Test</h3>
-                            <p>Compare means between two groups</p>
+                            <p>Compare means between groups</p>
                         </div>
-
-                        <!-- ANOVA Card -->
                         <div class="analysis-type-card" data-analysis="anova">
-                            <div class="card-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"/>
-                                    <rect x="14" y="3" width="7" height="7"/>
-                                    <rect x="14" y="14" width="7" height="7"/>
-                                    <rect x="3" y="14" width="7" height="7"/>
-                                </svg>
-                            </div>
+                            <div class="card-icon green">F</div>
                             <h3>ANOVA</h3>
-                            <p>Compare means across multiple groups</p>
+                            <p>Compare across multiple groups</p>
                         </div>
-
-                        <!-- Correlation Card -->
                         <div class="analysis-type-card" data-analysis="correlation">
-                            <div class="card-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="20" x2="18" y2="10"/>
-                                    <line x1="12" y1="20" x2="12" y2="4"/>
-                                    <line x1="6" y1="20" x2="6" y2="14"/>
-                                    <circle cx="18" cy="10" r="2"/>
-                                    <circle cx="12" cy="4" r="2"/>
-                                    <circle cx="6" cy="14" r="2"/>
-                                </svg>
-                            </div>
+                            <div class="card-icon yellow">r</div>
                             <h3>Correlation</h3>
-                            <p>Measure relationship between variables</p>
+                            <p>Measure relationships</p>
                         </div>
-
-                        <!-- Regression Card -->
                         <div class="analysis-type-card" data-analysis="regression">
-                            <div class="card-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                                </svg>
-                            </div>
+                            <div class="card-icon purple">R</div>
                             <h3>Regression</h3>
-                            <p>Predict and model relationships</p>
+                            <p>Predict and model</p>
                         </div>
                     </div>
 
-                    <!-- Analysis Settings Panels -->
-                    <div class="analysis-panels">
-                        <!-- T-Test Settings -->
-                        <div class="analysis-panel" id="ttest-panel" style="display: none;">
-                            <h4>T-Test Settings</h4>
-                            <div class="form-group">
-                                <label for="ttestType">Test Type</label>
-                                <select id="ttestType">
-                                    <option value="independent">Independent Samples T-Test</option>
-                                    <option value="paired">Paired Samples T-Test</option>
-                                    <option value="onesample">One Sample T-Test</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="ttestVar1">Variable 1</label>
-                                <select id="ttestVar1"></select>
-                            </div>
-                            <div class="form-group" id="ttestVar2Group">
-                                <label for="ttestVar2">Variable 2</label>
-                                <select id="ttestVar2"></select>
-                            </div>
-                            <div class="form-group" id="ttestTestValueGroup" style="display: none;">
-                                <label for="ttestTestValue">Test Value (μ₀)</label>
-                                <input type="number" id="ttestTestValue" value="0" step="any">
-                            </div>
-                            <div class="form-group">
-                                <label for="ttestAltHypothesis">Alternative Hypothesis</label>
-                                <select id="ttestAltHypothesis">
-                                    <option value="two-sided">Two-sided (μ₁ ≠ μ₂)</option>
-                                    <option value="greater">Greater (μ₁ > μ₂)</option
-                                    <option value="less">Less (μ₁ < μ₂)</option>
-                                </select>
-                            </div>
+                    <!-- T-Test Panel -->
+                    <div class="analysis-panel" id="ttest-panel" style="display: none;">
+                        <h4>T-Test Settings</h4>
+                        <div class="form-group">
+                            <label>Test Type</label>
+                            <select id="ttestType">
+                                <option value="independent">Independent Samples</option>
+                                <option value="paired">Paired Samples</option>
+                                <option value="onesample">One Sample</option>
+                            </select>
                         </div>
-
-                        <!-- ANOVA Settings -->
-                        <div class="analysis-panel" id="anova-panel" style="display: none;">
-                            <h4>ANOVA Settings</h4>
-                            <div class="form-group">
-                                <label for="anovaType">ANOVA Type</label>
-                                <select id="anovaType">
-                                    <option value="oneway">One-Way ANOVA</option>
-                                    <option value="twoway">Two-Way ANOVA</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="anovaDepVar">Dependent Variable</label>
-                                <select id="anovaDepVar"></select>
-                            </div>
-                            <div class="form-group">
-                                <label for="anovaIndVar1">Independent Factor 1</label>
-                                <select id="anovaIndVar1"></select>
-                            </div>
-                            <div class="form-group" id="anovaIndVar2Group" style="display: none;">
-                                <label for="anovaIndVar2">Independent Factor 2</label>
-                                <select id="anovaIndVar2"></select>
-                            </div>
-                            
-                            <!-- Post Hoc Selection -->
-                            <div class="form-group">
-                                <label>Post Hoc Analysis</label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="posthocLSD" checked>
-                                        <span>LSD (Least Significant Difference)</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="posthocTukey">
-                                        <span>Tukey HSD</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="posthocDMRT">
-                                                                            <span>Duncan's New Multiple Range Test (DMRT)</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="posthocBonferroni">
-                                        <span>Bonferroni</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="posthocScheffe">
-                                        <span>Scheffé</span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label>Variable 1</label>
+                            <select id="ttestVar1"></select>
                         </div>
-
-                        <!-- Correlation Settings -->
-                        <div class="analysis-panel" id="correlation-panel" style="display: none;">
-                            <h4>Correlation Settings</h4>
-                            <div class="form-group">
-                                <label for="corrMethod">Correlation Method</label>
-                                <select id="corrMethod">
-                                    <option value="pearson">Pearson (Parametric)</option>
-                                    <option value="spearman">Spearman Rank (Non-parametric)</option>
-                                    <option value="kendall">Kendall's Tau (Non-parametric)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="corrVar1">Variable 1</label>
-                                <select id="corrVar1"></select>
-                            </div>
-                            <div class="form-group">
-                                <label for="corrVar2">Variable 2</label>
-                                <select id="corrVar2"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Correlation Matrix</label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="corrMatrix">
-                                    <span>Generate full correlation matrix</span>
-                                </label>
-                            </div>
+                        <div class="form-group" id="ttestVar2Group">
+                            <label>Variable 2</label>
+                            <select id="ttestVar2"></select>
                         </div>
+                        <div class="form-group" id="ttestTestValueGroup" style="display: none;">
+                            <label>Test Value (μ₀)</label>
+                            <input type="number" id="ttestTestValue" value="0" step="any">
+                        </div>
+                        <div class="form-group">
+                            <label>Hypothesis</label>
+                            <select id="ttestAltHypothesis">
+                                <option value="two-sided">Two-sided (μ₁ ≠ μ₂)</option>
+                                <option value="greater">Greater (μ₁ > μ₂)</option>
+                                <option value="less">Less (μ₁ < μ₂)</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <!-- Regression Settings -->
-                        <div class="analysis-panel" id="regression-panel" style="display: none;">
-                            <h4>Regression Settings</h4>
-                            <div class="form-group">
-                                <label for="regType">Regression Type</label>
-                                <select id="regType">
-                                    <option value="linear">Linear (Y = a + bX)</option>
-                                    <option value="polynomial">Polynomial</option>
-                                    <option value="logarithmic">Logarithmic (Y = a + b·ln(X))</option>
-                                    <option value="exponential">Exponential (Y = a·e^(bX))</option>
-                                    <option value="power">Power (Y = a·X^b)</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="polyDegreeGroup" style="display: none;">
-                                <label for="polyDegree">Polynomial Degree</label>
-                                <select id="polyDegree">
-                                    <option value="2">Quadratic (Degree 2)</option>
-                                    <option value="3">Cubic (Degree 3)</option>
-                                    <option value="4">Quartic (Degree 4)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="regXVar">Independent Variable (X)</label>
-                                <select id="regXVar"></select>
-                            </div>
-                            <div class="form-group">
-                                <label for="regYVar">Dependent Variable (Y)</label>
-                                <select id="regYVar"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Options</label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="regShowEquation" checked>
-                                        <span>Show regression equation</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="regShowPrediction">
-                                        <span>Show prediction intervals</span>
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="regShowConfidence">
-                                        <span>Show confidence intervals</span>
-                                    </label>
-                                </div>
+                    <!-- ANOVA Panel -->
+                    <div class="analysis-panel" id="anova-panel" style="display: none;">
+                        <h4>ANOVA Settings</h4>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="anovaType">
+                                <option value="oneway">One-Way</option>
+                                <option value="twoway">Two-Way</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dependent Variable</label>
+                            <select id="anovaDepVar"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Factor 1</label>
+                            <select id="anovaIndVar1"></select>
+                        </div>
+                        <div class="form-group" id="anovaIndVar2Group" style="display: none;">
+                            <label>Factor 2</label>
+                            <select id="anovaIndVar2"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Post Hoc Tests</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" id="posthocLSD" checked> <span>LSD</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="posthocTukey"> <span>Tukey HSD</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="posthocDMRT"> <span>DMRT</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="posthocBonferroni"> <span>Bonferroni</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="posthocScheffe"> <span>Scheffé</span></label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Run Analysis Button -->
+                    <!-- Correlation Panel -->
+                    <div class="analysis-panel" id="correlation-panel" style="display: none;">
+                        <h4>Correlation Settings</h4>
+                        <div class="form-group">
+                            <label>Method</label>
+                            <select id="corrMethod">
+                                <option value="pearson">Pearson</option>
+                                <option value="spearman">Spearman</option>
+                                <option value="kendall">Kendall</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Variable 1</label>
+                            <select id="corrVar1"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Variable 2</label>
+                            <select id="corrVar2"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label"><input type="checkbox" id="corrMatrix"> <span>Generate correlation matrix</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Regression Panel -->
+                    <div class="analysis-panel" id="regression-panel" style="display: none;">
+                        <h4>Regression Settings</h4>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="regType">
+                                <option value="linear">Linear</option>
+                                <option value="polynomial">Polynomial</option>
+                                <option value="logarithmic">Logarithmic</option>
+                                <option value="exponential">Exponential</option>
+                                <option value="power">Power</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="polyDegreeGroup" style="display: none;">
+                            <label>Degree</label>
+                            <select id="polyDegree">
+                                <option value="2">Quadratic (x²)</option>
+                                <option value="3">Cubic (x³)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>X (Independent)</label>
+                            <select id="regXVar"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Y (Dependent)</label>
+                            <select id="regYVar"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Options</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" id="regShowPrediction"> <span>Prediction intervals</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="regShowConfidence"> <span>Confidence intervals</span></label>
+                            </div>
+                        </div>
+                    </div>
+
                     <button class="btn btn-primary btn-lg" id="runAnalysisBtn" style="display: none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="5 3 19 12 5 21 5 3"/>
-                        </svg>
                         Run Analysis
                     </button>
                 </div>
             </section>
 
             <!-- Results Section -->
-            <section class="card results-section" id="resultsSection" style="display: none;">
+            <section class="card" id="resultsSection" style="display: none;">
                 <div class="card-header">
-                    <h2>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
-                        </svg>
-                        Analysis Results
-                    </h2>
+                    <h2>Analysis Results</h2>
                     <div class="result-actions">
-                        <button class="btn btn-secondary btn-sm" id="copyResultsBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                            </svg>
-                            Copy
-                        </button>
-                        <button class="btn btn-secondary btn-sm" id="exportResultsBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Export
-                        </button>
+                        <button class="btn btn-secondary btn-sm" id="copyResultsBtn">Copy</button>
+                        <button class="btn btn-secondary btn-sm" id="exportResultsBtn">Export</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Results Tabs -->
+                    <!-- Tabs -->
                     <div class="results-tabs">
                         <button class="tab-btn active" data-result-tab="summary">Summary</button>
                         <button class="tab-btn" data-result-tab="detailed">Detailed</button>
                         <button class="tab-btn" data-result-tab="graph">Graph</button>
                     </div>
 
-                    <!-- Summary Tab -->
                     <div class="result-tab-content active" id="summary-tab">
-                        <div class="results-container" id="resultsContainer">
-                            <!-- Results will be inserted here -->
-                        </div>
+                        <div class="results-container" id="resultsContainer"></div>
                     </div>
-
-                    <!-- Detailed Tab -->
                     <div class="result-tab-content" id="detailed-tab">
-                        <div class="detailed-results" id="detailedResults">
-                            <!-- Detailed results will be inserted here -->
-                        </div>
+                        <div class="detailed-results" id="detailedResults"></div>
                     </div>
-
-                    <!-- Graph Tab -->
                     <div class="result-tab-content" id="graph-tab">
                         <div class="graph-container">
                             <canvas id="resultChart"></canvas>
-                        </div>
-                        <div class="graph-controls">
-                            <button class="btn btn-secondary btn-sm" id="downloadChartBtn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Download Chart
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -486,19 +313,17 @@
         <div class="loading-overlay" id="loadingOverlay" style="display: none;">
             <div class="loading-spinner">
                 <div class="spinner"></div>
-                <p>Processing analysis...</p>
+                <p>Processing...</p>
             </div>
         </div>
 
-        <!-- Toast Notification -->
+        <!-- Toast -->
         <div class="toast" id="toast">
-            <div class="toast-content">
-                <span class="toast-message"></span>
-            </div>
+            <span class="toast-message"></span>
         </div>
     </div>
 
-    <!-- JavaScript Modules -->
-    <script type="module" src="js/statistics-analyzer-main.js"></script>
+    <!-- Main App -->
+    <script type="module" src="js/statistics-analyzer-app.js"></script>
 </body>
 </html>
