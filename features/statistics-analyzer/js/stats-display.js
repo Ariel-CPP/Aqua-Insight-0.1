@@ -1,5 +1,5 @@
 /**
- * Display Results - Aqua Insight
+ * Display Results - Aqua Insight (English)
  */
 
 function showResults(result, resultsContent, resultsSection) {
@@ -39,11 +39,33 @@ function dispDescriptive(r) {
     return html;
 }
 
+function dispTTest(r) {
+    var sig = r.significant ? 'SIGNIFICANT' : 'NOT SIGNIFICANT';
+    var cls = r.significant ? 'significant' : 'not-significant';
+    var html = '<div class="result-card"><h4 class="result-title">Independent T-Test</h4>';
+    html += '<div class="result-row"><span class="result-label">Variables</span><span class="result-value">' + r.groups[0] + ' vs ' + r.groups[1] + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">Alpha</span><span class="result-value">' + r.alpha + '</span></div>';
+    html += '</div>';
+    html += '<div class="result-card"><h5 style="color:#38bdf8;">Group Statistics</h5>';
+    html += '<table class="results-table"><thead><tr><th>Group</th><th>N</th><th>Mean</th><th>Std</th></tr></thead><tbody>';
+    html += '<tr><td>' + r.groups[0] + '</td><td>' + r.group1.n + '</td><td>' + r.group1.mean.toFixed(4) + '</td><td>' + r.group1.std.toFixed(4) + '</td></tr>';
+    html += '<tr><td>' + r.groups[1] + '</td><td>' + r.group2.n + '</td><td>' + r.group2.mean.toFixed(4) + '</td><td>' + r.group2.std.toFixed(4) + '</td></tr>';
+    html += '</tbody></table></div>';
+    html += '<div class="result-card"><h5 style="color:#38bdf8;">Test Results</h5>';
+    html += '<div class="result-row"><span class="result-label">t-value</span><span class="result-value">' + r.t.toFixed(4) + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">df</span><span class="result-value">' + r.df + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">t-critical</span><span class="result-value">' + r.tCritical.toFixed(4) + '</span></div>';
+    html += '</div>';
+    html += dispConclusion(r.conclusion, sig, cls);
+    html += '</div>';
+    return html;
+}
+
 function dispTTestPaired(r) {
-    var sig = r.significant ? 'SIGNIFIKAN' : 'TIDAK SIGNIFIKAN';
+    var sig = r.significant ? 'SIGNIFICANT' : 'NOT SIGNIFICANT';
     var cls = r.significant ? 'significant' : 'not-significant';
     var html = '<div class="result-card"><h4 class="result-title">Paired T-Test</h4>';
-    html += '<div class="result-row"><span class="result-label">Variabel</span><span class="result-value">' + r.groups[0] + ' vs ' + r.groups[1] + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">Variables</span><span class="result-value">' + r.groups[0] + ' vs ' + r.groups[1] + '</span></div>';
     html += '<div class="result-row"><span class="result-label">Alpha</span><span class="result-value">' + r.alpha + '</span></div>';
     html += '</div>';
     html += '<div class="result-card">';
@@ -60,7 +82,7 @@ function dispTTestPaired(r) {
 }
 
 function dispAnova(r) {
-    var sig = r.significant ? 'SIGNIFIKAN' : 'TIDAK SIGNIFIKAN';
+    var sig = r.significant ? 'SIGNIFICANT' : 'NOT SIGNIFICANT';
     var cls = r.significant ? 'significant' : 'not-significant';
     var html = '<div class="result-card"><h4 class="result-title">One-Way ANOVA</h4>';
     html += '<div class="result-row"><span class="result-label">Alpha</span><span class="result-value">' + r.alpha + '</span></div>';
@@ -101,12 +123,12 @@ function dispAnova(r) {
 }
 
 function dispCorrelation(r) {
-    var sig = r.significant ? 'SIGNIFIKAN' : 'TIDAK SIGNIFIKAN';
+    var sig = r.significant ? 'SIGNIFICANT' : 'NOT SIGNIFICANT';
     var cls = r.significant ? 'significant' : 'not-significant';
     var rLabel = r.type === 'Spearman Correlation' ? 'rho' : 'r';
     var rVal = r.r !== undefined ? r.r : r.rho;
     var html = '<div class="result-card"><h4 class="result-title">' + r.type + '</h4>';
-    html += '<div class="result-row"><span class="result-label">Variabel</span><span class="result-value">' + r.variables[0] + ' & ' + r.variables[1] + '</span></div>';
+    html += '<div class="result-row"><span class="result-label">Variables</span><span class="result-value">' + r.variables[0] + ' & ' + r.variables[1] + '</span></div>';
     html += '<div class="result-row"><span class="result-label">N</span><span class="result-value">' + r.n + '</span></div>';
     html += '</div>';
     html += '<div class="result-card"><h5 style="color:#38bdf8;">Correlation Results</h5>';
@@ -121,10 +143,10 @@ function dispCorrelation(r) {
 }
 
 function dispRegression(r) {
-    var sig = r.significant ? 'SIGNIFIKAN' : 'TIDAK SIGNIFIKAN';
+    var sig = r.significant ? 'SIGNIFICANT' : 'NOT SIGNIFICANT';
     var cls = r.significant ? 'significant' : 'not-significant';
     var html = '<div class="result-card"><h4 class="result-title">Linear Regression</h4>';
-    html += '<div class="result-row"><span class="result-label">Variabel</span><span class="result-value">' + r.variables[1] + ' = f(' + r.variables[0] + ')</span></div>';
+    html += '<div class="result-row"><span class="result-label">Variables</span><span class="result-value">' + r.variables[1] + ' = f(' + r.variables[0] + ')</span></div>';
     html += '<div class="result-row"><span class="result-label">N</span><span class="result-value">' + r.n + '</span></div>';
     html += '</div>';
     html += '<div class="result-card"><h5 style="color:#38bdf8;">Regression Equation</h5>';
@@ -156,15 +178,15 @@ function dispNormality(r) {
         html += '<tr><td>' + c.name + '</td><td>' + c.n + '</td><td>' + c.w.toFixed(4) + '</td><td class="' + nCls + '">' + c.conclusion + '</td></tr>';
     }
     html += '</tbody></table></div>';
-    html += '<div class="result-card"><h5 style="color:#38bdf8;">Interpretasi</h5>';
-    html += '<p style="color:#94a3b8;margin:0;">• Jika p >= alpha: Data berdistribusi normal</p>';
-    html += '<p style="color:#94a3b8;margin:5px 0 0 0;">• Jika p < alpha: Data tidak berdistribusi normal</p>';
+    html += '<div class="result-card"><h5 style="color:#38bdf8;">Interpretation</h5>';
+    html += '<p style="color:#94a3b8;margin:0;">• If p >= alpha: Data is normally distributed</p>';
+    html += '<p style="color:#94a3b8;margin:5px 0 0 0;">• If p < alpha: Data is not normally distributed</p>';
     html += '</div></div>';
     return html;
 }
 
 function dispHomogeneity(r) {
-    var sig = r.significant ? 'VARIANS TIDAK HOMOGEN' : 'VARIANS HOMOGEN';
+    var sig = r.significant ? 'VARIANCES NOT HOMOGENEOUS' : 'VARIANCES HOMOGENEOUS';
     var cls = r.significant ? 'not-significant' : 'significant';
     var html = '<div class="result-card"><h4 class="result-title">Levene Homogeneity Test</h4>';
     html += '<div class="result-row"><span class="result-label">Alpha</span><span class="result-value">' + r.alpha + '</span></div>';
@@ -181,7 +203,7 @@ function dispHomogeneity(r) {
 
 function dispConclusion(conclusion, sig, cls) {
     var html = '<div class="result-card" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);">';
-    html += '<h5 style="color:#22c55e;">Kesimpulan</h5>';
+    html += '<h5 style="color:#22c55e;">Conclusion</h5>';
     html += '<p style="margin:0;">' + conclusion + '</p>';
     html += '<p style="margin:10px 0 0 0;" class="' + cls + '"><strong>Status: ' + sig + '</strong></p>';
     html += '</div>';
