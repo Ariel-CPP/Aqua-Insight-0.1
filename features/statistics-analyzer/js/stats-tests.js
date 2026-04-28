@@ -1,5 +1,6 @@
 /**
  * Statistical Tests - Aqua Insight
+ * Updated with variable selection support
  */
 
 function analyzeDescriptive(data, columnNames) {
@@ -25,6 +26,7 @@ function analyzeDescriptive(data, columnNames) {
 }
 
 function analyzeTTestInd(data, columnNames, alpha) {
+    // Use selected variables or default to first two columns
     var g1 = data.map(function(row) { return row[0]; });
     var g2 = data.map(function(row) { return row[1]; });
     var n1 = g1.length, n2 = g2.length;
@@ -42,7 +44,7 @@ function analyzeTTestInd(data, columnNames, alpha) {
         group1: { n: n1, mean: m1, std: s1 },
         group2: { n: n2, mean: m2, std: s2 },
         t: t, df: df, tCritical: tCrit, significant: sig,
-        conclusion: sig ? 'Terdapat perbedaan signifikan' : 'Tidak terdapat perbedaan signifikan'
+        conclusion: sig ? 'There is a significant difference' : 'There is no significant difference'
     };
 }
 
@@ -65,7 +67,7 @@ function analyzeTTestPaired(data, columnNames, alpha) {
         alpha: alpha,
         n: n, meanDiff: mDiff, stdDiff: sDiff,
         t: t, df: df, tCritical: tCrit, significant: sig,
-        conclusion: sig ? 'Terdapat perbedaan signifikan' : 'Tidak terdapat perbedaan signifikan'
+        conclusion: sig ? 'There is a significant difference' : 'There is no significant difference'
     };
 }
 
@@ -105,7 +107,7 @@ function analyzeAnova(data, columnNames, alpha, postHocType) {
         dfb: dfb, dfw: dfw, dft: dfb + dfw,
         msb: msb, msw: msw,
         f: f, fCritical: fCrit, significant: sig,
-        conclusion: sig ? 'Terdapat perbedaan signifikan antar grup' : 'Tidak terdapat perbedaan signifikan',
+        conclusion: sig ? 'There is a significant difference among groups' : 'There is no significant difference among groups',
         groupStats: groups.map(function(g, i) {
             return { name: columnNames[i], n: g.length, mean: mean(g), std: std(g) };
         })
@@ -153,19 +155,19 @@ function analyzePearson(data, columnNames, alpha) {
     var sig = Math.abs(r) > rCrit;
     var interp = '';
     var absR = Math.abs(r);
-    if (absR >= 0.9) interp = 'Sangat kuat';
-    else if (absR >= 0.7) interp = 'Kuat';
-    else if (absR >= 0.5) interp = 'Sedang';
-    else if (absR >= 0.3) interp = 'Lemah';
-    else interp = 'Sangat lemah';
-    interp += r > 0 ? ' positif' : r < 0 ? ' negatif' : '';
+    if (absR >= 0.9) interp = 'Very Strong';
+    else if (absR >= 0.7) interp = 'Strong';
+    else if (absR >= 0.5) interp = 'Moderate';
+    else if (absR >= 0.3) interp = 'Weak';
+    else interp = 'Very Weak';
+    interp += r > 0 ? ' Positive' : r < 0 ? ' Negative' : '';
     return {
         type: 'Pearson Correlation',
         variables: [columnNames[0], columnNames[1]],
         alpha: alpha,
         n: n, r: r, r2: r2, rCritical: rCrit, significant: sig,
         interpretation: interp,
-        conclusion: sig ? 'Terdapat korelasi signifikan' : 'Tidak terdapat korelasi signifikan'
+        conclusion: sig ? 'There is a significant correlation' : 'There is no significant correlation'
     };
 }
 
@@ -188,7 +190,7 @@ function analyzeSpearman(data, columnNames, alpha) {
         variables: [columnNames[0], columnNames[1]],
         alpha: alpha,
         n: n, rho: rho, rCritical: rCrit, significant: sig,
-        conclusion: sig ? 'Terdapat korelasi signifikan' : 'Tidak terdapat korelasi signifikan'
+        conclusion: sig ? 'There is a significant correlation' : 'There is no significant correlation'
     };
 }
 
@@ -219,7 +221,7 @@ function analyzeRegression(data, columnNames, alpha) {
     var tB1 = seB1 > 0 ? b1 / seB1 : 0;
     var sig = Math.abs(tB1) > getTCrit(alpha, df);
     return {
-        type: 'Linear Regression',
+                type: 'Linear Regression',
         variables: [columnNames[0], columnNames[1]],
         alpha: alpha,
         n: n,
@@ -227,7 +229,7 @@ function analyzeRegression(data, columnNames, alpha) {
         intercept: b0, slope: b1,
         seSlope: seB1, tSlope: tB1,
         r: r, r2: r2, significant: sig,
-        conclusion: sig ? 'Regresi signifikan' : 'Regresi tidak signifikan'
+        conclusion: sig ? 'Regression is significant' : 'Regression is not significant'
     };
 }
 
@@ -253,7 +255,7 @@ function analyzeNormality(data, columnNames, alpha) {
             name: columnNames[c],
             n: n, w: w, p: p,
             significant: p < alpha,
-            conclusion: p >= alpha ? 'Normal' : 'Tidak normal'
+            conclusion: p >= alpha ? 'Normal' : 'Not Normal'
         });
     }
     return { type: 'Shapiro-Wilk Normality Test', alpha: alpha, columns: cols };
@@ -289,6 +291,6 @@ function analyzeHomogeneity(data, columnNames, alpha) {
         alpha: alpha,
         groups: columnNames.slice(0, groups.length),
         w: w, dfb: dfb, dfw: dfw, p: p, significant: sig,
-        conclusion: sig ? 'Varians tidak homogen' : 'Varians homogen'
+        conclusion: sig ? 'Variances are not homogeneous' : 'Variances are homogeneous'
     };
 }
