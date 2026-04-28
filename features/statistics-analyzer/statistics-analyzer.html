@@ -14,27 +14,10 @@
             padding: 20px;
             min-height: 100vh;
         }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .page-header {
-            margin-bottom: 20px;
-        }
-        
-        .page-title {
-            color: #38bdf8;
-            margin: 0 0 10px 0;
-            font-size: 1.8rem;
-        }
-        
-        .page-subtitle {
-            color: #64748b;
-            margin: 0;
-        }
-        
+        .container { max-width: 1400px; margin: 0 auto; }
+        .page-header { margin-bottom: 20px; }
+        .page-title { color: #38bdf8; margin: 0 0 10px 0; font-size: 1.8rem; }
+        .page-subtitle { color: #64748b; margin: 0; }
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -47,29 +30,18 @@
             border-radius: 8px;
             transition: all 0.3s;
         }
-        
-        .back-link:hover {
-            background: rgba(56, 189, 248, 0.2);
-        }
-        
+        .back-link:hover { background: rgba(56, 189, 248, 0.2); }
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 400px;
             gap: 20px;
         }
-        
-        .data-section {
+        .data-section, .control-section, .results-section {
             background: #1e293b;
             border-radius: 16px;
             padding: 20px;
         }
-        
-        .section-title {
-            color: #38bdf8;
-            margin: 0 0 15px 0;
-            font-size: 1.1rem;
-        }
-        
+        .section-title { color: #38bdf8; margin: 0 0 15px 0; font-size: 1.1rem; }
         .data-input {
             width: 100%;
             min-height: 300px;
@@ -83,21 +55,9 @@
             resize: vertical;
             outline: none;
         }
-        
-        .data-input:focus {
-            border-color: #38bdf8;
-        }
-        
-        .data-input::placeholder {
-            color: #475569;
-        }
-        
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
+        .data-input:focus { border-color: #38bdf8; }
+        .data-input::placeholder { color: #475569; }
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
         .btn {
             padding: 12px 24px;
             border: none;
@@ -107,41 +67,18 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
         .btn-primary {
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             color: white;
             flex: 1;
         }
-        
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
         }
-        
-        .btn-secondary {
-            background: #334155;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #475569;
-        }
-        
-        .control-section {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .control-label {
-            display: block;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        
+        .btn-secondary { background: #334155; color: white; }
+        .btn-secondary:hover { background: #475569; }
+        .control-label { display: block; color: #94a3b8; margin-bottom: 8px; font-size: 0.9rem; }
         .select-input {
             width: 100%;
             padding: 12px;
@@ -153,17 +90,8 @@
             outline: none;
             cursor: pointer;
         }
-        
-        .select-input:focus {
-            border-color: #38bdf8;
-        }
-        
-        .alpha-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
+        .select-input:focus { border-color: #38bdf8; }
+        .alpha-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .alpha-btn {
             flex: 1;
             padding: 12px;
@@ -175,109 +103,45 @@
             transition: all 0.3s;
             font-weight: 600;
         }
-        
-        .alpha-btn:hover {
-            border-color: #38bdf8;
-        }
-        
+        .alpha-btn:hover { border-color: #38bdf8; }
         .alpha-btn.active {
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             border-color: transparent;
             color: white;
         }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            padding: 12px;
-            background: #0f172a;
-            border-radius: 10px;
-        }
-        
-        .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            accent-color: #38bdf8;
-        }
-        
-        .checkbox-group label {
-            color: #e2e8f0;
-            cursor: pointer;
-        }
-        
-        .results-section {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        
-        .results-table th {
-            background: #334155;
-            padding: 12px;
-            text-align: left;
-            color: #38bdf8;
-        }
-        
-        .results-table td {
-            padding: 12px;
-            border-bottom: 1px solid #334155;
-        }
-        
-        .results-table tr:hover {
-            background: rgba(56, 189, 248, 0.1);
-        }
-        
-        .significant {
-            color: #22c55e;
-            font-weight: bold;
-        }
-        
-        .not-significant {
-            color: #ef4444;
-        }
-        
         .result-card {
             background: #0f172a;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 15px;
         }
-        
-        .result-title {
-            color: #38bdf8;
-            margin: 0 0 15px 0;
-            font-size: 1rem;
-        }
-        
+        .result-title { color: #38bdf8; margin: 0 0 15px 0; font-size: 1rem; }
         .result-row {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
             border-bottom: 1px solid #334155;
         }
-        
-        .result-row:last-child {
-            border-bottom: none;
+        .result-row:last-child { border-bottom: none; }
+        .result-label { color: #94a3b8; }
+        .result-value { color: #e2e8f0; font-weight: 600; }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
         }
-        
-        .result-label {
-            color: #94a3b8;
+        .results-table th {
+            background: #334155;
+            padding: 10px;
+            text-align: left;
+            color: #38bdf8;
         }
-        
-        .result-value {
-            color: #e2e8f0;
-            font-weight: 600;
+        .results-table td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
         }
-        
+        .significant { color: #22c55e; font-weight: bold; }
+        .not-significant { color: #ef4444; }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -292,16 +156,8 @@
             transition: all 0.3s;
             z-index: 1000;
         }
-        
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        
-        .toast.error {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-        
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .info-box {
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.3);
@@ -309,18 +165,8 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-        
-        .info-box p {
-            margin: 0;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 992px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        .info-box p { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+        @media (max-width: 992px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -333,20 +179,16 @@
         </div>
         
         <div class="info-box">
-            <p>💡 <strong>Petunjuk:</strong> Paste data dengan format tab-separated (copy dari Excel/Google Sheets). Baris pertama = nama parameter. Maksimal 20 kolom × 100 baris data.</p>
+            <p>💡 <strong>Petunjuk:</strong> Paste data tab-separated (dari Excel). Baris pertama = nama parameter. Max 20 kolom × 100 baris.</p>
         </div>
         
         <div class="main-grid">
             <div class="data-section">
                 <h3 class="section-title">📋 Data Input</h3>
-                <textarea id="dataInput" class="data-input" placeholder="Paste your data here...
-
-Example:
-Parameter1    Parameter2    Parameter3
+                <textarea id="dataInput" class="data-input" placeholder="Parameter1    Parameter2    Parameter3
 12.5          15.3          18.2
 11.8          14.9          17.5
-13.2          16.1          19.0
-..."></textarea>
+13.2          16.1          19.0"></textarea>
                 
                 <div class="btn-row">
                     <button class="btn btn-primary" id="analyzeBtn">🔍 Analyze</button>
@@ -369,41 +211,26 @@ Parameter1    Parameter2    Parameter3
                     
                     <label class="control-label">Jenis Analisis</label>
                     <select id="analysisType" class="select-input">
-                        <optgroup label="📈 Deskriptif">
-                            <option value="descriptive">Descriptive Statistics</option>
-                        </optgroup>
-                        <optgroup label="📉 Perbandingan">
-                            <option value="ttest-ind" selected>Independent T-Test</option>
-                            <option value="ttest-paired">Paired T-Test</option>
-                            <option value="anova">One-Way ANOVA</option>
-                        </optgroup>
-                        <optgroup label="🔗 Korelasi">
-                            <option value="pearson">Pearson Correlation</option>
-                            <option value="spearman">Spearman Correlation</option>
-                        </optgroup>
-                        <optgroup label="📐 Regresi">
-                            <option value="regression">Linear Regression</option>
-                        </optgroup>
-                        <optgroup label="✅ Asumsi">
-                            <option value="normality">Normality Test (Shapiro-Wilk)</option>
-                            <option value="homogeneity">Homogeneity Test (Levene)</option>
-                        </optgroup>
+                        <option value="descriptive">Descriptive Statistics</option>
+                        <option value="ttest-ind" selected>Independent T-Test</option>
+                        <option value="ttest-paired">Paired T-Test</option>
+                        <option value="anova">One-Way ANOVA</option>
+                        <option value="pearson">Pearson Correlation</option>
+                        <option value="spearman">Spearman Correlation</option>
+                        <option value="regression">Linear Regression</option>
+                        <option value="normality">Normality Test</option>
+                        <option value="homogeneity">Homogeneity Test</option>
                     </select>
                     
                     <div id="postHocSection" style="display: none;">
-                        <label class="control-label" style="margin-top: 15px;">Post-Hoc Analysis (untuk ANOVA)</label>
+                        <label class="control-label" style="margin-top: 15px;">Post-Hoc</label>
                         <select id="postHocType" class="select-input">
-                            <option value="">-- Pilih Post-Hoc --</option>
-                            <option value="lsd">LSD (Least Significant Difference)</option>
+                            <option value="">-- Pilih --</option>
+                            <option value="lsd">LSD</option>
                             <option value="duncan">Duncan</option>
                             <option value="tukey">Tukey HSD</option>
                             <option value="dMRT">DMRT</option>
                         </select>
-                    </div>
-                    
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showDetails">
-                        <label for="showDetails">Tampilkan detail lengkap</label>
                     </div>
                 </div>
             </div>
@@ -417,6 +244,11 @@ Parameter1    Parameter2    Parameter3
     
     <div class="toast" id="toast"></div>
     
-    <script src="js/statistics-analyzer.js"></script>
+    <!-- Load JS files in order -->
+    <script src="js/stats-core.js"></script>
+    <script src="js/stats-tables.js"></script>
+    <script src="js/stats-tests.js"></script>
+    <script src="js/stats-display.js"></script>
+    <script src="js/stats-main.js"></script>
 </body>
 </html>
